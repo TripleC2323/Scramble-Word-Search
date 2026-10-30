@@ -1,0 +1,7 @@
+Copyright (c) [2026] [Craig Campbell]. All rights reserved.
+
+This software, including all HTML, CSS, and JavaScript source code, is the exclusive property of the copyright holder. 
+
+No part of this project may be copied, reproduced, redistributed, modified, resold, or used to host derivative websites or applications without the express written permission of the copyright holder.
+
+Permitted Use: Users are authorized solely to access, view, and interact with the live application deployed on GitHub Pages for personal, non-commercial entertainment purposes.
