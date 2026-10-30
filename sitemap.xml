@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://sitemaps.org">
+    <!-- Main Game Page -->
+    <url>
+        <loc>https://github.com/TripleC2323/Scramble-Word-Search</loc>
+        <lastmod>2026-10-30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+    
+    <!-- Privacy Policy Page -->
+    <url>
+        <loc>https://github.com/TripleC2323/Scramble-Word-Search</loc>
+        <lastmod>2026-10-30</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.3</priority>
+    </url>
+</urlset>
