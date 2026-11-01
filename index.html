@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6760716425525943"
+     crossorigin="anonymous"></script>  
+ <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Scramble Word Search Game</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --bg-color: #f5f6fa;
+            --text-color: #2f3640;
+            --border-color: #dcdde1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Ad Slots */
+        .ad-banner {
+            width: 100%;
+            max-width: 970px;
+            height: 90px;
+            background-color: #dfe4ea;
+            border: 1px dashed #747d8c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            color: #747d8c;
+            margin: 10px 0;
+        }
+
+        /* Main Container */
+        .main-wrapper {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+            padding: 0 10px;
+        }
+
+        .game-and-sidebar-container {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 15px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* Game Elements */
+        .game-main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-stats {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            background: #f1f2f6;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .shuffle-timer-bar {
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            color: #ff4757;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* Grid Framework Container */
+        .grid-container {
+            position: relative;
+            width: 420px;
+            height: 420px;
+            background: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            touch-action: none;
+        }
+
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(12, 1fr);
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+
+        .grid-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        /* SVG Bubble Overlay Layer */
+        .highlight-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Right Word Sidebar Panel */
+        .word-sidebar {
+            width: 180px;
+            height: 420px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: #f8f9fa;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .sidebar-title {
+            font-size: 15px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        .word-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .word-item {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 6px;
+            border-radius: 4px;
+            background: white;
+            border: 1px solid var(--border-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .word-item.found {
+            text-decoration: line-through;
+            color: #a4b0be;
+            background: #e4e7eb;
+        }
+
+        /* Right Skyscraper Ad Column */
+        .ad-skyscraper {
+            width: 160px;
+            height: 520px;
+            background-color: #dfe4ea;
+            border: 1px dashed #747d8c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            color: #747d8c;
+            text-align: center;
+            padding: 10px;
+        }
+
+        /* Completion Screen Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-box h2 {
+            color: var(--success-color);
+            margin-bottom: 15px;
+        }
+
+        .modal-box p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .pb-alert {
+            color: #ff4757;
+            font-weight: bold;
+            animation: pulse 1s infinite alternate;
+            margin: 15px 0;
+            font-size: 18px;
+        }
+
+        .modal-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        /* Responsive Layout Overrides */
+        @media (max-width: 900px) {
+            .ad-skyscraper {
+                display: none;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .game-and-sidebar-container {
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                max-width: 440px;
+            }
+
+            .grid-container {
+                width: 340px;
+                height: 340px;
+            }
+
+            .grid-cell {
+                font-size: 15px;
+            }
+
+            .word-sidebar {
+                width: 100%;
+                height: auto;
+                min-height: 110px;
+            }
+
+            .word-list {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+                height: auto;
+            }
+
+            .word-item {
+                font-size: 12px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Advertisement Banner -->
+    <div class="ad-banner">Top Leaderboard Ad Advertisement Panel (970x90)</div>
+
+    <!-- Layout Grid Engine Wrap -->
+    <div class="main-wrapper">
+        <div class="game-and-sidebar-container">
+            
+            <!-- Core Game Viewport Layout -->
+            <div class="game-main">
+                <div class="header-stats">
+                    <div id="round-display">Level: 1</div>
+                    <div id="timer-display">Time: 00:00</div>
+                    <div id="best-display">Best: --:--</div>
+                </div>
+                <div class="shuffle-timer-bar" id="shuffle-countdown">
+                    ⏳ Shuffling in: 00:30
+                </div>
+                
+                <div class="grid-container" id="grid-wrapper">
+                    <!-- SVG Bubble Highlights Component Overlay Layer -->
+                    <svg class="highlight-svg" id="svg-layer"></svg>
+                    <!-- Interaction Word Grid Mapping Layer -->
+                    <div class="word-grid" id="letters-matrix"></div>
+                </div>
+            </div>
+
+            <!-- Adjoining Sidebar Word Target Node Element List -->
+            <div class="word-sidebar">
+                <div class="sidebar-title">Words to Find (12)</div>
+                <ul class="word-list" id="target-words-pool"></ul>
+            </div>
+
+        </div>
+
+        <!-- Right Side Skyscraper Ad Column Section -->
+        <div class="ad-skyscraper">Right Tower Advertisement Banner (160x600)</div>
+    </div>
+
+    <!-- Bottom Advertisement Banner -->
+    <div class="ad-banner">Bottom Leaderboard Ad Advertisement Panel (970x90)</div>
+
+    <!-- Results Celebration Modal Window Interface Layer -->
+    <div class="modal-overlay" id="endgame-modal">
+        <div class="modal-box">
+            <h2>Congratulations Puzzle Complete</h2>
+            <p id="final-time-text">Your Time: 00:00</p>
+            <div id="pb-notification" class="pb-alert" style="display: none;">New Personal Best Time!</div>
+            <button class="modal-btn" onclick="advanceNextRound()">Play Next Level</button>
+        </div>
+    </div>
+
+    <script>
+        // Extended Dictionary Master Pool to Guarantee Fresh Variation Selections
+        const MASTER_DICTIONARY = [
+            "ANCHOR", "JAGUAR", "VIOLIN", "CASTLE", "CACTUS", "PEACOCK", "COMPASS", "PENGUIN", "DRUMMER", "PUMPKIN", "KOALA", "BEACON", "TORNADO", "TURNIP", "GORILLA", "TOPAZ", "GEYSER", "MEERKAT", "HARPOON", "TSUNAMI", "BADGER", "CANYON", "LEMUR", "OPAL", "GLIDER", "WALRUS", "PYRAMID", "EMERALD", "OTTER", "RADISH", "CHEETAH", "TRUMPET", "MONUMENT", "CYCLONE", "AIRSHIP", "PANTHER", "RUBY", "FORTRESS", "GLACIER", "SAILBOAT", "KEYSTONE", "ACCORDION", "PARSNIP", "RAINBOW", "FALCON", "HAMMER", "LANTERN", "MARBLE"
+        ];
+
+        let currentRound = 1;
+        let gameActiveTime = 0;
+        let shuffleCountdownTime = 30;
+        let gameTimerId = null;
+        let shuffleTimerId = null;
+
+        let activeRoundWords = [];
+        let completedWordsFound = []; 
+        let matrixGridData = Array(12).fill(null).map(() => Array(12).fill(''));
+        
+        // Retains background cell locks separating true data tracking allocations
+        let coreProtectedCellCoordinates = {}; 
+        let userTrackedSelections = [];
+        let isPointerDragging = false;
+        let activeSelectionPathCoordinates = [];
+
+        // DOM elements cache references
+        const lettersMatrixEl = document.getElementById('letters-matrix');
+        const svgLayerEl = document.getElementById('svg-layer');
+        const targetWordsPoolEl = document.getElementById('target-words-pool');
+        const roundDisplayEl = document.getElementById('round-display');
+        const timerDisplayEl = document.getElementById('timer-display');
+        const bestDisplayEl = document.getElementById('best-display');
+        const shuffleCountdownEl = document.getElementById('shuffle-countdown');
+        const endgameModalEl = document.getElementById('endgame-modal');
+        const finalTimeTextEl = document.getElementById('final-time-text');
+        const pbNotificationEl = document.getElementById('pb-notification');
+        const gridWrapperEl = document.getElementById('grid-wrapper');
+
+        // Formats seconds explicitly into mm:ss configuration patterns
+        function formatDurationString(totalSeconds) {
+            const mins = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const secs = (totalSeconds % 60).toString().padStart(2, '0');
+            return `${mins}:${secs}`;
+        }
+
+        // Pulls Personal Best allocations directly out from Local Storage keys
+        function initializePersonalBestScoreboard() {
+            const recordedBest = localStorage.getItem('wordsearch_pb_score');
+            if (recordedBest) {
+                bestDisplayEl.innerText = `Best: ${formatDurationString(parseInt(recordedBest))}`;
+            } else {
+                bestDisplayEl.innerText = "Best: --:--";
+            }
+        }
+
+        // Initialize unique 12 dynamic lists 
+        function selectUniqueTwelveTargetWords() {
+            const startIndex = ((currentRound - 1) * 12) % MASTER_DICTIONARY.length;
+            const selectedList = [];
+            for(let i = 0; i < 12; i++) {
+                selectedList.push(MASTER_DICTIONARY[(startIndex + i) % MASTER_DICTIONARY.length]);
+            }
+            return selectedList;
+        }
+
+        // Builds matrix framework layouts 
+        function constructFreshWordGridPuzzle() {
+            activeRoundWords = selectUniqueTwelveTargetWords();
+            completedWordsFound = [];
+            coreProtectedCellCoordinates = {};
+            matrixGridData = Array(12).fill(null).map(() => Array(12).fill(''));
+            
+            const layoutDirections = [
+                { r: 0, c: 1 },   // Horiz
+                { r: 1, c: 0 },   // Vert
+                { r: 1, c: 1 },   // Diagonal Down-Right
+                { r: -1, c: 1 }   // Diagonal Up-Right
+            ];
+
+            activeRoundWords.forEach((wordString, indexKey) => {
+                let wordSuccessfullyPlaced = false;
+                let failureBreakerIterations = 0;
+
+                while(!wordSuccessfullyPlaced && failureBreakerIterations < 300) {
+                    failureBreakerIterations++;
+                    const chosenDir = layoutDirections[Math.floor(Math.random() * layoutDirections.length)];
+                    const startingRow = Math.floor(Math.random() * 12);
+                    const startingCol = Math.floor(Math.random() * 12);
+
+                    // Check bounds limits
+                    const trackEndRow = startingRow + chosenDir.r * (wordString.length - 1);
+                    const trackEndCol = startingCol + chosenDir.c * (wordString.length - 1);
+
+                    if (trackEndRow >= 0 && trackEndRow < 12 && trackEndCol >= 0 && trackEndCol < 12) {
+                        let structuralCollisionDetected = false;
+                        let coordinatesPathBuilder = [];
+
+                        for (let charIndex = 0; charIndex < wordString.length; charIndex++) {
+                            const targetCellR = startingRow + chosenDir.r * charIndex;
+                            const targetCellC = startingCol + chosenDir.c * charIndex;
+                            const existingCellChar = matrixGridData[targetCellR][targetCellC];
+
+                            if (existingCellChar !== '' && existingCellChar !== wordString[charIndex]) {
+                                structuralCollisionDetected = true;
+                                break;
+                            }
+                            coordinatesPathBuilder.push({ r: targetCellR, c: targetCellC });
+                        }
+
+                        if (!structuralCollisionDetected) {
+                            coordinatesPathBuilder.forEach((coordinate, charIndex) => {
+                                matrixGridData[coordinate.r][coordinate.c] = wordString[charIndex];
+                                const coordinateKeyHash = `${coordinate.r}_${coordinate.c}`;
+                                if (!coreProtectedCellCoordinates[coordinateKeyHash]) {
+                                    coreProtectedCellCoordinates[coordinateKeyHash] = [];
+                                }
+                                coreProtectedCellCoordinates[coordinateKeyHash].push({
+                                    word: wordString,
+                                    letter: wordString[charIndex]
+                                });
+                            });
+                            wordSuccessfullyPlaced = true;
+                        }
+                    }
+                }
+            });
+
+            // Fills remaining grid cells with random letters
+            const upperLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            for(let r = 0; r < 12; r++) {
+                for(let c = 0; c < 12; c++) {
+                    if(matrixGridData[r][c] === '') {
+                        matrixGridData[r][c] = upperLetters[Math.floor(Math.random() * 26)];
+                    }
+                }
+            }
+
+            renderGridInterfaceDOM();
+            renderTargetListDOM();
+            redrawAllTrackingBubbles();
+        }
+
+        // Regenerates layout cell inner structures cleanly
+        function renderGridInterfaceDOM() {
+            lettersMatrixEl.innerHTML = '';
+            for(let r = 0; r < 12; r++) {
+                for(let c = 0; c < 12; c++) {
+                    const cellNode = document.createElement('div');
+                    cellNode.className = 'grid-cell';
+                    cellNode.innerText = matrixGridData[r][c];
+                    cellNode.setAttribute('data-row', r);
+                    cellNode.setAttribute('data-col', c);
+                    lettersMatrixEl.appendChild(cellNode);
+                }
+            }
+        }
+
+        // Renders target list to match exactly 12 items securely
+        function renderTargetListDOM() {
+            targetWordsPoolEl.innerHTML = '';
+            activeRoundWords.forEach(word => {
+                const listNode = document.createElement('li');
+                listNode.className = 'word-item';
+                if(completedWordsFound.includes(word)) {
+                    listNode.className = 'word-item found';
+                    listNode.innerHTML = `✓ ${word}`;
+                } else {
+                    listNode.innerText = word;
+                }
+                listNode.setAttribute('data-word-id', word);
+                targetWordsPoolEl.appendChild(listNode);
+            });
+        }
+
+        // Scramble background elements without corrupting hidden solution letters
+        function triggerLetterScrambleRotation() {
+            const upperLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            for(let r = 0; r < 12; r++) {
+                for(let c = 0; c < 12; c++) {
+                    const coordinateKeyHash = `${r}_${c}`;
+                    let cellRequiresProtection = false;
+
+                    if (coreProtectedCellCoordinates[coordinateKeyHash]) {
+                        // Check if the cell contains part of an un-found word
+                        const containsUnfoundWord = coreProtectedCellCoordinates[coordinateKeyHash].some(item => 
+                            !completedWordsFound.includes(item.word)
+                        );
+                        // Check if the cell contains part of an already found word
+                        const containsFoundWord = coreProtectedCellCoordinates[coordinateKeyHash].some(item => 
+                            completedWordsFound.includes(item.word)
+                        );
+                        
+                        if (containsUnfoundWord || containsFoundWord) {
+                            cellRequiresProtection = true;
+                        }
+                    }
+
+                    if (!cellRequiresProtection) {
+                        matrixGridData[r][c] = upperLetters[Math.floor(Math.random() * 26)];
+                    }
+                }
+            }
+
+            renderGridInterfaceDOM();
+            redrawAllTrackingBubbles();
+        }
+
+        // Master UI Bubble SVG Redraw Calculations Layer
+        function redrawAllTrackingBubbles() {
+            svgLayerEl.innerHTML = '';
+            const cellDimensionWidth = gridWrapperEl.clientWidth / 12;
+
+            // Draw confirmed words capsule lines
+            completedWordsFound.forEach(wordItem => {
+                // Find all matching paths coordinates
+                let wordPathCoordinates = [];
+                for(let key in coreProtectedCellCoordinates) {
+                    if(coreProtectedCellCoordinates[key].some(i => i.word === wordItem)) {
+                        const [r, c] = key.split('_').map(Number);
+                        wordPathCoordinates.push({r, c});
+                    }
+                }
+                
+                // Sort coordinates coordinates along standard line indexes 
+                wordPathCoordinates.sort((a, b) => a.r - b.r || a.c - b.c);
+                if (wordPathCoordinates.length > 0) {
+                    renderBubbleCapsulePath(wordPathCoordinates[0], wordPathCoordinates[wordPathCoordinates.length - 1], cellDimensionWidth, 'rgba(46, 204, 113, 0.4)', 'rgba(46, 204, 113, 0.8)');
+                }
+            });
+
+            // Draw current path outline trace capsule tracking
+            if (isPointerDragging && activeSelectionPathCoordinates.length > 0) {
+                renderBubbleCapsulePath(activeSelectionPathCoordinates[0], activeSelectionPathCoordinates[activeSelectionPathCoordinates.length - 1], cellDimensionWidth, 'rgba(74, 144, 226, 0.4)', 'rgba(74, 144, 226, 0.8)');
+            }
+        }
+
+        // Generates compliant capsule bubble outlines inside raw canvas elements
+        function renderBubbleCapsulePath(startCoord, endCoord, cellSize, fillColor, strokeColor) {
+            const startX = startCoord.c * cellSize + (cellSize / 2);
+            const startY = startCoord.r * cellSize + (cellSize / 2);
+            const endX = endCoord.c * cellSize + (cellSize / 2);
+            const endY = endCoord.r * cellSize + (cellSize / 2);
+
+            const capsuleLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            capsuleLine.setAttribute('x1', startX);
+            capsuleLine.setAttribute('y1', startY);
+            capsuleLine.setAttribute('x2', endX);
+            capsuleLine.setAttribute('y2', endY);
+            capsuleLine.setAttribute('stroke', fillColor);
+            capsuleLine.setAttribute('stroke-width', cellSize * 0.85);
+            capsuleLine.setAttribute('stroke-linecap', 'round');
+            svgLayerEl.appendChild(capsuleLine);
+        }
+
+        // Core Session Operational Track Clocks
+        function initGameSessionClocks() {
+            clearInterval(gameTimerId);
+            clearInterval(shuffleTimerId);
+            
+            gameActiveTime = 0;
+            shuffleCountdownTime = 30;
+            
+            timerDisplayEl.innerText = `Time: 00:00`;
+            shuffleCountdownEl.innerText = `⏳ Shuffling in: 00:30`;
+
+            gameTimerId = setInterval(() => {
+                gameActiveTime++;
+                timerDisplayEl.innerText = `Time: ${formatDurationString(gameActiveTime)}`;
+            }, 1000);
+
+            shuffleTimerId = setInterval(() => {
+                shuffleCountdownTime--;
+                if (shuffleCountdownTime <= 0) {
+                    triggerLetterScrambleRotation();
+                    shuffleCountdownTime = 30;
+                }
+                shuffleCountdownEl.innerText = `⏳ Shuffling in: 00:${shuffleCountdownTime.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Interface Execution Coordinate Resolvers
+        function extractCellDataFromCoords(clientX, clientY) {
+            const boundaryRect = lettersMatrixEl.getBoundingClientRect();
+            const relX = clientX - boundaryRect.left;
+            const relY = clientY - boundaryRect.top;
+
+            if (relX >= 0 && relX < boundaryRect.width && relY >= 0 && relY < boundaryRect.height) {
+                const targetColumnIdx = Math.floor((relX / boundaryRect.width) * 12);
+                const targetRowIdx = Math.floor((relY / boundaryRect.height) * 12);
+                return { r: targetRowIdx, c: targetColumnIdx };
+            }
+            return null;
+        }
+
+        function initiateSelectionDrag(cellObj) {
+            if (!cellObj) return;
+            isPointerDragging = true;
+            userTrackedSelections = [cellObj];
+            activeSelectionPathCoordinates = [cellObj];
+            redrawAllTrackingBubbles();
+        }
+
+        function processSelectionDrag(cellObj) {
+            if (!isPointerDragging || !cellObj) return;
+            const lastCell = userTrackedSelections[userTrackedSelections.length - 1];
+            if (lastCell.r === cellObj.r && lastCell.c === cellObj.c) return;
+
+            const baseAnchorCell = userTrackedSelections[0];
+            const diffRow = cellObj.r - baseAnchorCell.r;
+            const diffCol = cellObj.c - baseAnchorCell.c;
+
+            let rowIncrementStep = 0;
+            let colIncrementStep = 0;
+
+            if (diffRow === 0 && diffCol !== 0) {
+                colIncrementStep = Math.sign(diffCol);
+            } else if (diffCol === 0 && diffRow !== 0) {
+                rowIncrementStep = Math.sign(diffRow);
+            } else if (Math.abs(diffRow) === Math.abs(diffCol) && diffRow !== 0) {
+                rowIncrementStep = Math.sign(diffRow);
+                colIncrementStep = Math.sign(diffCol);
+            } else {
+                return; // Not a straight line selection
+            }
+
+            let pathRecreationCollector = [baseAnchorCell];
+            let loopRowTracker = baseAnchorCell.r;
+            let loopColTracker = baseAnchorCell.c;
+
+            while (loopRowTracker !== cellObj.r || loopColTracker !== cellObj.c) {
+                loopRowTracker += rowIncrementStep;
+                loopColTracker += colIncrementStep;
+                pathRecreationCollector.push({ r: loopRowTracker, c: loopColTracker });
+            }
+
+            userTrackedSelections = pathRecreationCollector;
+            activeSelectionPathCoordinates = pathRecreationCollector;
+            redrawAllTrackingBubbles();
+        }
+
+        function terminateSelectionDrag() {
+            if (!isPointerDragging) return;
+            isPointerDragging = false;
+
+            if (userTrackedSelections.length > 0) {
+                let forwardWordString = '';
+                let reverseWordString = '';
+
+                userTrackedSelections.forEach(coord => {
+                    const charVal = matrixGridData[coord.r][coord.c];
+                    forwardWordString += charVal;
+                    reverseWordString = charVal + reverseWordString;
+                });
+
+                let targetedMatchWord = null;
+                if (activeRoundWords.includes(forwardWordString) && !completedWordsFound.includes(forwardWordString)) {
+                    targetedMatchWord = forwardWordString;
+                } else if (activeRoundWords.includes(reverseWordString) && !completedWordsFound.includes(reverseWordString)) {
+                    targetedMatchWord = reverseWordString;
+                }
+
+                if (targetedMatchWord) {
+                    completedWordsFound.push(targetedMatchWord);
+                    renderTargetListDOM();
+                    evaluateGameCompletionState();
+                }
+            }
+
+            activeSelectionPathCoordinates = [];
+            userTrackedSelections = [];
+            redrawAllTrackingBubbles();
+        }
+
+        // Process completion and evaluation rules matrices
+        function evaluateGameCompletionState() {
+            if (completedWordsFound.length === 12) {
+                clearInterval(gameTimerId);
+                clearInterval(shuffleTimerId);
+
+                finalTimeTextEl.innerText = `Your Time: ${formatDurationString(gameActiveTime)}`;
+                const historicBestRecord = localStorage.getItem('wordsearch_pb_score');
+                
+                if (!historicBestRecord || gameActiveTime < parseInt(historicBestRecord)) {
+                    localStorage.setItem('wordsearch_pb_score', gameActiveTime.toString());
+                    pbNotificationEl.style.display = 'block';
+                    initializePersonalBestScoreboard();
+                } else {
+                    pbNotificationEl.style.display = 'none';
+                }
+
+                endgameModalEl.classList.add('active');
+            }
+        }
+
+        function advanceNextRound() {
+            endgameModalEl.classList.remove('active');
+            currentRound++;
+            roundDisplayEl.innerText = `Level: ${currentRound}`;
+            constructFreshWordGridPuzzle();
+            initGameSessionClocks();
+        }
+
+        // Event Attachment Matrix Bindings
+        lettersMatrixEl.addEventListener('mousedown', (e) => {
+            const targetedCellCoords = extractCellDataFromCoords(e.clientX, e.clientY);
+            initiateSelectionDrag(targetedCellCoords);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isPointerDragging) return;
+            const targetedCellCoords = extractCellDataFromCoords(e.clientX, e.clientY);
+            processSelectionDrag(targetedCellCoords);
+        });
+
+        window.addEventListener('mouseup', () => {
+            terminateSelectionDrag();
+        });
+
+        // Touch Input Support
+        lettersMatrixEl.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 0) return;
+            const targetedCellCoords = extractCellDataFromCoords(e.touches[0].clientX, e.touches[0].clientY);
+            initiateSelectionDrag(targetedCellCoords);
+            e.preventDefault();
+        }, { passive: false });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isPointerDragging || e.touches.length === 0) return;
+            const targetedCellCoords = extractCellDataFromCoords(e.touches[0].clientX, e.touches[0].clientY);
+            processSelectionDrag(targetedCellCoords);
+            e.preventDefault();
+        }, { passive: false });
+
+        window.addEventListener('touchend', () => {
+            terminateSelectionDrag();
+        });
+
+        // Global Execution Call
+        window.addEventListener('resize', () => {
+            redrawAllTrackingBubbles();
+        });
+
+        window.onload = () => {
+            initializePersonalBestScoreboard();
+            constructFreshWordGridPuzzle();
+            initGameSessionClocks();
+        };
+    </script>
+</body>
+</html>
