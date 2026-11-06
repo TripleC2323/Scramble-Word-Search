@@ -1,5 +1,9 @@
 User-agent: *
 Allow: /
 
+# Block AdSense from seeing the mobile test app
+User-agent: Mediapartners-Google
+Disallow: /test-app.html
+
 # Sitemap Location
 Sitemap: https://github.com/TripleC2323/Scramble-Word-Search
