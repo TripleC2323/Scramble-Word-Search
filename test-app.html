@@ -10,21 +10,44 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Syncopate:wght@700&family=Kanit:ital,wght@1,900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
     body {
       font-family: 'Outfit', sans-serif;
       background: linear-gradient(135deg, #070414 0%, #020108 100%);
       height: 100vh; height: 100dvh; width: 100vw;
-      margin: 0; padding: 0; overflow: hidden;
+      margin: 0; padding: var(--sat) var(--sar) var(--sab) var(--sal);
+      overflow: hidden;
       display: flex; align-items: center; justify-content: center;
-      touch-action: none;
+      touch-action: manipulation;
     }
     .marble-canvas {
       background-color: #080517;
       border: 4px solid #00f3ff;
       box-shadow: 0 0 40px rgba(0, 243, 255, 0.25);
       height: 98vh; height: 98dvh; width: 98vw;
-      max-width: 1280px; max-height: 850px;
+      max-width: 1280px; max-height: 860px;
       transition: border-color 0.4s ease, box-shadow 0.4s ease;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    @media (max-width: 767px) {
+      body {
+        height: auto; min-height: 100dvh;
+        overflow-y: auto; align-items: flex-start;
+      }
+      .marble-canvas {
+        height: auto; min-height: 98dvh;
+        border-width: 3px; border-radius: 1.25rem;
+        margin: 1vh 0;
+      }
     }
     .arcade-headline {
       font-family: 'Syncopate', sans-serif;
@@ -70,11 +93,15 @@
                   0 0 10px rgba(66, 212, 235, 0.4);
       transition: transform 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       user-select: none; cursor: pointer;
+      touch-action: none;
+      font-size: clamp(12px, 3.2vw, 18px);
     }
-    .grid-token:hover {
-      transform: scale(1.08);
-      border-color: #ffffff;
-      box-shadow: 0 0 20px rgba(66, 212, 235, 0.95), inset 0 0 8px rgba(255, 255, 255, 0.6);
+    @media (hover: hover) {
+      .grid-token:hover {
+        transform: scale(1.08);
+        border-color: #ffffff;
+        box-shadow: 0 0 20px rgba(66, 212, 235, 0.95), inset 0 0 8px rgba(255, 255, 255, 0.6);
+      }
     }
     .grid-token.selected {
       background: radial-gradient(circle at 35% 35%, #ffffff 0%, #67e8f9 50%, #06b6d4 100%) !important;
@@ -102,7 +129,7 @@
     .multiplier-tile::after {
       content: '2X';
       position: absolute;
-      top: -4px; right: -4px;
+      top: -3px; right: -3px;
       background: linear-gradient(135deg, #ef4444, #f59e0b);
       color: #ffffff;
       font-size: 8px; font-weight: 900;
@@ -174,7 +201,7 @@
     @keyframes gridPunch { 0% { transform: scale(1); } 30% { transform: scale(1.02); } 100% { transform: scale(1); } }
     .grid-punch-active { animation: gridPunch 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.3); }
 
-    /* EXCITEMENT BADGE (0.75s) */
+    /* EXCITEMENT BADGE */
     @keyframes floatUpFade {
       0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
       18% { transform: translate(-50%, -50%) scale(1.22) translateY(-6px); opacity: 1; }
@@ -195,7 +222,7 @@
       100% { transform: translate(var(--tx), var(--ty)) scale(0.25); opacity: 0; }
     }
     .flying-coin {
-      position: fixed; pointer-events: none; z-index: 100; font-size: 22px;
+      position: fixed; pointer-events: none; z-index: 100; font-size: 20px;
       animation: flyToPiggy 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
       filter: drop-shadow(0 0 10px #fbbf24);
     }
@@ -238,25 +265,45 @@
       animation: floatGentle 2.6s ease-in-out infinite;
       filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.9));
     }
+
+    /* GRID SIZING RULES: DESKTOP & MOBILE */
+    #gridArena {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
     @media (min-width: 768px) {
       #gridArena { container-type: size; }
-      #gridWrapper { width: min(490px, 100cqw, 100cqh) !important; height: 100cqh !important; }
+      #gridWrapper {
+        width: min(490px, 100cqw, 100cqh) !important;
+        height: 100cqh !important;
+        max-height: 100% !important;
+        aspect-ratio: 1 / 1;
+        position: relative;
+        flex-shrink: 0;
+      }
     }
     @media (max-width: 767px) {
-      body { height: auto; min-height: 100dvh; overflow-y: auto; align-items: flex-start; }
-      .marble-canvas { height: auto; min-height: 98dvh; overflow: visible !important; margin: 1vh 0; }
-      #victoryOverlay, #leaderboardModal, #howToPlayModal, #timeExpiredModal, #piggyBankModal, #levelRoadmapModal, #milestoneModal { position: fixed !important; }
+      #gridWrapper {
+        width: min(88vw, 42dvh, 480px);
+        height: min(88vw, 42dvh, 480px);
+        aspect-ratio: 1 / 1;
+        position: relative;
+        flex-shrink: 0;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div id="masterCanvas" class="marble-canvas rounded-3xl p-3 sm:p-5 flex flex-col justify-between relative overflow-hidden">
+  <div id="masterCanvas" class="marble-canvas rounded-2xl md:rounded-3xl p-2.5 sm:p-4 md:p-5 relative overflow-hidden">
     
     <!-- TOP HEADER -->
-    <div id="controlPanel" class="flex flex-col lg:flex-row justify-between items-center border-b-2 border-cyan-500/30 pb-2.5 mb-2 gap-2 flex-shrink-0">
+    <div id="controlPanel" class="flex flex-col lg:flex-row justify-between items-center border-b-2 border-cyan-500/30 pb-2 mb-2 gap-2 flex-shrink-0">
       
-      <!-- LEFT: COVER DESIGN LOGO -->
+      <!-- LEFT: LOGO AREA -->
       <div class="text-center lg:text-left flex flex-col items-center lg:items-start select-none cursor-pointer" onclick="generateNewLevel(true)">
         <div class="flex items-center gap-2">
           <span class="logo-shift-it text-2xl sm:text-3xl md:text-4xl leading-none">
@@ -279,36 +326,38 @@
         </span>
       </div>
 
-      <!-- RIGHT: SAGA CONTROLS -->
+      <!-- RIGHT: SAGA CONTROLS (DESKTOP GRID & MOBILE FLEX-WRAP) -->
       <div class="flex flex-col gap-1.5 w-full lg:w-auto items-center lg:items-end">
+        
+        <!-- BUTTON ROW 1 -->
         <div class="flex flex-wrap items-center justify-center gap-1.5">
           
           <!-- SAGA TRAIL BUTTON -->
-          <button onclick="openLevelRoadmapModal()" class="cursor-pointer bg-gradient-to-br from-purple-900 to-indigo-950 border-2 border-purple-400/80 px-2.5 py-1 rounded-xl shadow-md hover:scale-105 transition flex items-center gap-1.5">
-            <span class="text-base">🗺️</span>
+          <button onclick="openLevelRoadmapModal()" class="cursor-pointer bg-gradient-to-br from-purple-900 to-indigo-950 border-2 border-purple-400/80 px-2 sm:px-2.5 py-1 rounded-xl shadow-md hover:scale-105 transition flex items-center gap-1 sm:gap-1.5">
+            <span class="text-sm sm:text-base">🗺️</span>
             <div class="text-left leading-none">
               <div class="flex items-center gap-1">
-                <span class="text-[11px] font-black text-amber-300 tracking-wider" id="headerLevelText">LVL 1</span>
+                <span class="text-[10px] sm:text-[11px] font-black text-amber-300 tracking-wider" id="headerLevelText">LVL 1</span>
                 <span class="text-[7px] bg-cyan-400 text-slate-950 px-1 py-0.2 rounded font-black uppercase">MAP</span>
               </div>
-              <div class="text-[8px] font-extrabold text-cyan-300 tracking-tight truncate max-w-[85px]" id="headerChapterText">NEON ALLEY</div>
+              <div class="text-[8px] font-extrabold text-cyan-300 tracking-tight truncate max-w-[70px] sm:max-w-[85px]" id="headerChapterText">NEON ALLEY</div>
             </div>
           </button>
 
           <!-- PIGGY VAULT BUTTON -->
-          <button id="piggyBankHudBtn" onclick="openPiggyBankModal()" class="flex items-center gap-1.5 bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 hover:from-pink-500 text-white px-2.5 py-1 text-xs font-black rounded-xl border-2 border-pink-300 shadow-md transition hover:scale-105">
-            <span id="piggyIcon" class="text-base">🐷</span>
+          <button id="piggyBankHudBtn" onclick="openPiggyBankModal()" class="flex items-center gap-1 sm:gap-1.5 bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 hover:from-pink-500 text-white px-2 sm:px-2.5 py-1 text-xs font-black rounded-xl border-2 border-pink-300 shadow-md transition hover:scale-105">
+            <span id="piggyIcon" class="text-sm sm:text-base">🐷</span>
             <div class="flex flex-col text-left leading-none">
               <div class="flex items-center gap-1">
-                <span class="text-[10px] font-black text-amber-200">PIGGY VAULT</span>
+                <span class="text-[9px] sm:text-[10px] font-black text-amber-200">VAULT</span>
                 <span id="piggyFillPctText" class="text-[8px] font-extrabold text-white/90">0%</span>
               </div>
-              <span id="piggyCoinsText" class="text-[9px] font-extrabold text-white">0 / 250</span>
+              <span id="piggyCoinsText" class="text-[8px] sm:text-[9px] font-extrabold text-white">0 / 250</span>
             </div>
           </button>
 
           <button onclick="openHowToPlay()" class="bg-gradient-to-r from-teal-400 to-emerald-500 text-slate-950 px-2 py-1 text-xs font-black rounded-xl border-2 border-emerald-400 shadow-md transition hover:scale-105 tracking-wider">
-            📖 GAMEPLAY
+            📖 HELP
           </button>
           <button onclick="toggleSound()" id="soundToggleBtn" class="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 px-2 py-1 text-xs font-black rounded-xl border-2 border-cyan-300 shadow-md transition hover:scale-105">
             🔊 SOUND ON
@@ -321,7 +370,7 @@
           </button>
         </div>
 
-        <!-- SAGA PROGRESS HUD -->
+        <!-- BUTTON ROW 2: SAGA PROGRESS HUD -->
         <div class="flex flex-wrap items-center justify-center gap-1.5">
           <div class="flex items-center gap-2 bg-slate-950/80 border-2 border-cyan-500/40 px-2.5 py-1 rounded-xl shadow-lg">
             <div class="flex items-center gap-1">
@@ -338,64 +387,67 @@
             EXTREME MODE
           </button>
         </div>
+
       </div>
     </div>
 
     <!-- STATS BAR -->
     <div id="statsTicker" class="grid grid-cols-5 bg-slate-950/80 border-2 border-cyan-500/40 rounded-2xl p-2 mb-2 gap-1.5 text-center text-xs font-black text-white shadow-sm flex-shrink-0">
-      <div>Level: <span id="stat-level" class="text-cyan-400 font-black text-sm">1</span></div>
-      <div>Multi: <span id="stat-multiplier" class="text-amber-400 font-black text-sm">1.0x</span></div>
+      <div>Level: <span id="stat-level" class="text-cyan-400 font-black text-xs sm:text-sm">1</span></div>
+      <div>Multi: <span id="stat-multiplier" class="text-amber-400 font-black text-xs sm:text-sm">1.0x</span></div>
       
-      <div id="shuffle-countdown-box" class="bg-gradient-to-r from-rose-600 to-red-700 border-2 border-rose-400 text-white rounded-xl px-1.5 py-0.2 shadow-sm">
-        Shift: <span id="timer-shuffle" class="text-yellow-300 font-mono font-black text-sm">45s</span>
+      <div id="shuffle-countdown-box" class="bg-gradient-to-r from-rose-600 to-red-700 border-2 border-rose-400 text-white rounded-xl px-1.5 py-0.5 shadow-sm">
+        Shift: <span id="timer-shuffle" class="text-yellow-300 font-mono font-black text-xs sm:text-sm">45s</span>
       </div>
       
-      <div>Time: <span id="timer-game" class="text-cyan-300 font-mono font-black text-sm transition-colors">04:15</span></div>
-      <div>Wallet: <span id="stat-vault" class="text-emerald-400 font-black text-sm">0</span></div>
+      <div>Time: <span id="timer-game" class="text-cyan-300 font-mono font-black text-xs sm:text-sm transition-colors">04:15</span></div>
+      <div>Wallet: <span id="stat-vault" class="text-emerald-400 font-black text-xs sm:text-sm">0</span></div>
     </div>
 
-    <!-- MATRIX ARENA -->
-    <div class="flex-1 flex flex-col md:flex-row gap-4 my-1 min-h-0 h-full overflow-hidden items-stretch">
+    <!-- MAIN ARENA & SIDEBAR WRAPPER -->
+    <div class="flex-1 flex flex-col md:flex-row gap-2 md:gap-4 my-1 min-h-0 h-full overflow-hidden items-stretch">
+      
+      <!-- GRID ARENA -->
       <div class="flex-1 flex items-center justify-center relative rounded-2xl p-2.5 border-4 border-cyan-400/90 min-h-0 h-full transition-all duration-300 shadow-inner board-arena-tropical" id="gridArena">
-        <div class="relative max-h-full aspect-square w-full flex items-center justify-center" id="gridWrapper" style="height: 100%; max-width: 490px;">
-          <div id="wordGrid" class="grid gap-1.5 w-full h-full select-none z-20 relative p-1.5"></div>
+        <div id="gridWrapper" class="relative max-h-full aspect-square w-full flex items-center justify-center">
+          <div id="wordGrid" class="grid gap-1 sm:gap-1.5 w-full h-full select-none z-20 relative p-1.5"></div>
           <canvas id="bubbleCanvas"></canvas>
           <canvas id="liveDragCanvas"></canvas>
         </div>
       </div>
 
       <!-- SIDEBAR -->
-      <div id="sidebarContainer" class="w-full md:w-[280px] flex-shrink-0 flex flex-col border-2 border-cyan-500/40 bg-slate-950/90 rounded-2xl p-3 h-auto md:h-full min-h-0 overflow-hidden shadow-md relative text-white">
+      <div id="sidebarContainer" class="w-full md:w-[260px] lg:w-[280px] flex-shrink-0 flex flex-col border-2 border-cyan-500/40 bg-slate-950/90 rounded-2xl p-2.5 sm:p-3 h-auto md:h-full min-h-0 overflow-hidden shadow-md relative text-white">
         <div id="sidebarTitle" class="text-center font-black text-xs uppercase tracking-widest text-cyan-400 bg-cyan-950/40 border border-cyan-800 py-1 rounded-xl mb-1.5 flex-shrink-0 flex items-center justify-between px-3">
           <span id="sidebarTargetHeader">TARGET WORDS</span>
           <span id="targetRemainingPill" class="text-[9px] bg-cyan-500 text-slate-950 px-2 py-0.5 rounded-md font-black">0/0</span>
         </div>
         
-        <div id="targetWordsContainer" class="flex-1 min-h-0 grid content-start select-none text-xs font-bold leading-relaxed overflow-y-auto"></div>
+        <div id="targetWordsContainer" class="flex-1 max-h-[18vh] md:max-h-none min-h-0 grid content-start select-none text-xs font-bold leading-relaxed overflow-y-auto"></div>
 
-        <div id="bonusAlertBox" aria-live="polite" class="h-7 mb-1 flex items-center justify-center text-[10px] font-black text-center rounded-xl transition-all duration-300 scale-95 opacity-0 bg-emerald-950 text-emerald-400 border border-emerald-800">
+        <div id="bonusAlertBox" aria-live="polite" class="h-6 sm:h-7 mb-1 flex items-center justify-center text-[9px] sm:text-[10px] font-black text-center rounded-xl transition-all duration-300 scale-95 opacity-0 bg-emerald-950 text-emerald-400 border border-emerald-800 flex-shrink-0">
           READY FOR CHALLENGE
         </div>
 
         <!-- 4 POWER-UPS -->
-        <div class="bg-neutral-900/90 border border-slate-800 p-1.5 rounded-xl mb-1.5 grid grid-cols-4 gap-1 text-center items-center">
+        <div class="bg-neutral-900/90 border border-slate-800 p-1.5 rounded-xl mb-1.5 grid grid-cols-4 gap-1 text-center items-center flex-shrink-0">
           <div role="button" tabindex="0" onclick="buyItem('BOMB')" class="flex flex-col items-center cursor-pointer hover:scale-105 transition" title="Reveals 1 word + 8s Freeze">
-            <span class="text-sm">🔍</span>
+            <span class="text-xs sm:text-sm">🔍</span>
             <span class="text-[8px] font-black text-slate-300">Reveal</span>
             <span class="text-[8px] font-extrabold text-amber-400">75 C</span>
           </div>
           <div role="button" tabindex="0" onclick="buyItem('TORNADO')" class="flex flex-col items-center cursor-pointer hover:scale-105 transition" title="Instant Reshuffle">
-            <span class="text-sm">🌪️</span>
+            <span class="text-xs sm:text-sm">🌪️</span>
             <span class="text-[8px] font-black text-slate-300">Tornado</span>
             <span class="text-[8px] font-extrabold text-amber-400">40 C</span>
           </div>
           <div role="button" tabindex="0" onclick="buyItem('FREEZE')" class="flex flex-col items-center cursor-pointer hover:scale-105 transition" title="Freeze Scramble for 8s">
-            <span class="text-sm">❄️</span>
+            <span class="text-xs sm:text-sm">❄️</span>
             <span class="text-[8px] font-black text-slate-300">Freeze</span>
             <span class="text-[8px] font-extrabold text-amber-400">60 C</span>
           </div>
           <div role="button" tabindex="0" onclick="buyItem('SKIN')" class="flex flex-col items-center cursor-pointer hover:scale-105 transition" title="Cycle Tropical Paradise Scenes">
-            <span class="text-sm">🏝️</span>
+            <span class="text-xs sm:text-sm">🏝️</span>
             <span class="text-[8px] font-black text-slate-300">Scene</span>
             <span class="text-[8px] font-extrabold text-emerald-400">SWITCH</span>
           </div>
@@ -404,11 +456,11 @@
         <div class="pt-1.5 border-t border-cyan-900 flex flex-col gap-1 flex-shrink-0">
           <div class="grid grid-cols-2 gap-1.5">
             <button onclick="requestAdReward('HINT')" class="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black py-1.5 px-2 rounded-xl shadow-md transition text-xs flex flex-col items-center justify-center border-2 border-amber-300">
-              <span class="font-black text-xs text-slate-950">Ad Reveal</span>
-              <span class="text-[8px] font-extrabold text-slate-900">Free Reveal</span>
+              <span class="font-black text-xs text-slate-950">Free Reveal</span>
+              <span class="text-[8px] font-extrabold text-slate-900">Watch Ad</span>
             </button>
             <button id="freezeBtn" onclick="requestAdReward('FREEZE')" class="bg-gradient-to-r from-cyan-400 to-teal-400 text-slate-950 font-black py-1.5 px-2 rounded-xl shadow-md transition text-xs flex flex-col items-center justify-center border-2 border-cyan-200">
-              <span id="freezeBtnText" class="font-black text-xs text-slate-950">Ad Freeze</span>
+              <span id="freezeBtnText" class="font-black text-xs text-slate-950">Free Freeze</span>
               <span class="text-[8px] font-extrabold text-slate-900">8s Freeze</span>
             </button>
           </div>
@@ -420,7 +472,7 @@
     </div>
 
     <!-- PIGGY BANK MODAL -->
-    <div id="piggyBankModal" class="hidden absolute inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-md">
+    <div id="piggyBankModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-md">
       <div class="bg-gradient-to-b from-purple-950 via-slate-950 to-black border-4 border-pink-400 rounded-3xl w-full max-w-sm p-6 shadow-2xl text-white text-center relative overflow-hidden">
         <button onclick="closePiggyBankModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-black text-xl p-1">✕</button>
         
@@ -454,8 +506,8 @@
       </div>
     </div>
 
-    <!-- SAGA TRAIL MAP MODAL (CANDY CRUSH STYLE) -->
-    <div id="levelRoadmapModal" class="hidden absolute inset-0 bg-black/90 z-50 flex items-center justify-center p-3 sm:p-4">
+    <!-- SAGA TRAIL MAP MODAL -->
+    <div id="levelRoadmapModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-3 sm:p-4">
       <div class="bg-gradient-to-b from-[#180d38] via-[#0d0724] to-black border-4 border-purple-500 rounded-3xl w-full max-w-md max-h-[88vh] flex flex-col p-5 shadow-2xl text-white">
         <div class="flex justify-between items-center border-b-2 border-purple-500/40 pb-2.5 mb-2.5 flex-shrink-0">
           <div>
@@ -482,19 +534,19 @@
       </div>
     </div>
 
-    <!-- 100-COIN MILESTONE MODAL (z-[60]) -->
-    <div id="milestoneModal" class="hidden absolute inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 backdrop-blur-md">
+    <!-- 100-COIN MILESTONE MODAL -->
+    <div id="milestoneModal" class="hidden fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 backdrop-blur-md">
       <div class="bg-gradient-to-b from-[#2b0c3f] via-[#16062b] to-[#0a0217] border-4 border-amber-400 rounded-3xl w-full max-w-sm p-6 shadow-[0_0_60px_rgba(251,191,36,0.6)] text-white text-center relative overflow-hidden">
         <div class="text-5xl mb-2 animate-bounce">🏆🌺🎉</div>
         <div class="text-2xl sm:text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 uppercase arcade-headline">
-          YOUR CRUSHING IT!!
+          YOU'RE CRUSHING IT!
         </div>
         <p class="text-xs font-black text-pink-300 uppercase tracking-widest mt-1" id="milestoneLevelSub">
           MILESTONE REACHED!
         </p>
 
         <div class="my-5 bg-slate-950/90 border-2 border-amber-400/60 rounded-2xl p-4 shadow-inner">
-          <div class="text-xs font-black text-slate-300 mb-1">MILESTONE BONUSES</div>
+          <div class="text-xs font-black text-slate-300 mb-1">MILESTONE BONUS</div>
           <div class="text-2xl font-black text-amber-300 font-mono tracking-wider">
             +100 COINS
           </div>
@@ -510,7 +562,7 @@
     </div>
 
     <!-- OUT OF TIME MODAL -->
-    <div id="timeExpiredModal" class="hidden absolute inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-md transition-all">
+    <div id="timeExpiredModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-md">
       <div class="bg-gradient-to-b from-neutral-900 via-neutral-950 to-black border-4 border-rose-500/90 rounded-3xl w-full max-w-sm p-6 shadow-2xl text-white text-center">
         <div class="text-2xl sm:text-3xl font-black tracking-tight text-rose-500 uppercase tracking-wider mb-1 flex items-center justify-center gap-2">
           <span>⏰</span> OUT OF TIME!
@@ -527,12 +579,10 @@
             <span>⚡ +25 SECONDS</span>
             <span class="bg-black/30 px-2 py-0.5 rounded-lg text-slate-950 font-black text-xs">50 Coins</span>
           </button>
-
           <button onclick="buyExtraTime('AD')" class="w-full bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 text-slate-950 font-black py-3 px-4 rounded-xl text-xs sm:text-sm tracking-wider uppercase transition shadow-lg flex items-center justify-between">
             <span>📺 +25 SECONDS</span>
             <span class="bg-black/30 px-2 py-0.5 rounded-lg text-slate-950 font-bold text-xs">Watch Ad</span>
           </button>
-
           <button onclick="giveUpMatch()" class="w-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white font-extrabold py-2.5 px-4 rounded-xl text-xs tracking-widest uppercase transition mt-2">
             Give Up / Restart Level
           </button>
@@ -541,14 +591,8 @@
     </div>
 
     <!-- CELEBRATION OVERLAY -->
-    <div id="victoryOverlay" class="hidden absolute inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-4 text-center transition-all duration-300 overflow-hidden">
+    <div id="victoryOverlay" class="hidden fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-4 text-center transition-all duration-300 overflow-hidden">
       <canvas id="victorySparksCanvas"></canvas>
-
-      <div class="ambient-celebration-star text-4xl top-8 left-10">✨</div>
-      <div class="ambient-celebration-star text-3xl top-16 right-14" style="animation-delay: 0.7s;">🌟</div>
-      <div class="ambient-celebration-star text-4xl bottom-14 left-16" style="animation-delay: 1.3s;">⭐</div>
-      <div class="ambient-celebration-star text-3xl bottom-10 right-12" style="animation-delay: 0.4s;">✨</div>
-
       <div id="streamersContainer" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
       
       <div class="z-50 max-w-md w-full bg-gradient-to-b from-[#1b113b] via-[#100b2b] to-[#0a071f] border-4 border-cyan-400 p-6 md:p-8 rounded-3xl backdrop-blur-2xl shadow-2xl relative overflow-hidden">
@@ -559,16 +603,16 @@
         <p class="text-xs font-bold text-cyan-300 uppercase tracking-widest mt-0.5" id="victorySubhead">Masterful Discovery</p>
         
         <div class="flex justify-center items-center gap-3 my-4 text-3xl md:text-4xl" id="victoryStarsContainer">
-          <span class="star-pop-1" id="vStar1">⭐</span>
-          <span class="star-pop-2" id="vStar2">⭐</span>
-          <span class="star-pop-3" id="vStar3">⭐</span>
+          <span id="vStar1">⭐</span>
+          <span id="vStar2">⭐</span>
+          <span id="vStar3">⭐</span>
         </div>
 
         <div class="text-sm font-extrabold text-slate-100 my-4 bg-slate-950/85 p-4 rounded-2xl border-2 border-cyan-500/40 text-left space-y-2 backdrop-blur-md shadow-inner" id="victoryStatsSummary"></div>
 
         <div id="highScoreForm" class="mb-4 p-2 bg-slate-950/90 border-2 border-purple-500/80 rounded-2xl w-full flex items-center gap-2 shadow-lg">
-          <input type="text" id="playerNameInput" placeholder="Enter Your Name..." class="bg-purple-950/50 text-cyan-300 placeholder-purple-300/60 border border-purple-400/50 rounded-xl px-4 py-2 text-sm font-black flex-1 focus:outline-none focus:border-cyan-400 text-left" maxLength="12">
-          <button onclick="submitCurrentScore()" class="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 text-slate-950 font-black text-xs md:text-sm px-5 py-2 rounded-xl shadow-md transition transform active:scale-95 whitespace-nowrap tracking-wider uppercase">
+          <input type="text" id="playerNameInput" placeholder="Enter Your Name..." class="bg-purple-950/50 text-cyan-300 placeholder-purple-300/60 border border-purple-400/50 rounded-xl px-4 py-2 text-sm font-black flex-1 focus:outline-none" maxLength="12">
+          <button onclick="submitCurrentScore()" class="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 text-slate-950 font-black text-xs md:text-sm px-5 py-2 rounded-xl shadow-md transition uppercase">
             Save
           </button>
         </div>
@@ -581,7 +625,7 @@
     </div>
 
     <!-- HIGH SCORE MODAL -->
-    <div id="leaderboardModal" class="hidden absolute inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div id="leaderboardModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
       <div class="bg-neutral-900 border-2 border-purple-500 rounded-3xl w-full max-w-md max-h-[80vh] flex flex-col p-5 shadow-2xl text-white">
         <div class="flex justify-between items-center border-b border-neutral-800 pb-3 mb-3">
           <h2 class="text-xl font-black tracking-tight text-purple-400">HIGH SCORE WALL</h2>
@@ -597,8 +641,8 @@
       </div>
     </div>
 
-    <!-- GAMEPLAY MANUAL MODAL -->
-    <div id="howToPlayModal" class="hidden absolute inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+    <!-- HOW TO PLAY MODAL -->
+    <div id="howToPlayModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
       <div class="bg-gradient-to-b from-[#140b2b] via-[#0d0720] to-black border-4 border-cyan-400 rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col p-6 shadow-2xl text-white">
         <div class="flex justify-between items-center border-b-2 border-cyan-800 pb-3 mb-4">
           <h2 class="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">
@@ -609,80 +653,47 @@
           </button>
         </div>
         
-        <div class="flex-1 overflow-y-auto space-y-4 pr-2 min-h-0 text-xs md:text-sm leading-relaxed text-slate-200 font-medium">
-          <div class="bg-slate-900/70 p-3.5 rounded-xl border border-cyan-500/30">
-            <h4 class="font-black text-cyan-300 text-sm uppercase tracking-wider flex items-center gap-2">
-              <span>🎯</span> 1. CORE MISSION &amp; 8-WAY TRACING
+        <div class="flex-1 overflow-y-auto space-y-3 pr-2 min-h-0 text-xs md:text-sm leading-relaxed text-slate-200">
+          <div class="bg-slate-900/70 p-3 rounded-xl border border-cyan-500/30">
+            <h4 class="font-black text-cyan-300 text-sm uppercase flex items-center gap-2">
+              <span>🎯</span> 1. TRACE HIDDEN WORDS
             </h4>
             <p class="mt-1 text-slate-300">
-              Search the glowing field to locate all <strong>Target Words</strong> listed on the right sidebar. Drag horizontally, vertically, or diagonally in any direction. Release when selected!
+              Drag horizontally, vertically, or diagonally in 8 directions. Words scramble when the shift countdown expires!
             </p>
           </div>
-
-          <div class="bg-slate-900/70 p-3.5 rounded-xl border border-amber-500/30">
-            <h4 class="font-black text-amber-300 text-sm uppercase tracking-wider flex items-center gap-2">
-              <span>⭐</span> 2. STREAK 2X MULTIPLIER TILES
+          <div class="bg-slate-900/70 p-3 rounded-xl border border-amber-500/30">
+            <h4 class="font-black text-amber-300 text-sm uppercase flex items-center gap-2">
+              <span>⭐</span> 2. 2X MULTIPLIER TILES
             </h4>
             <p class="mt-1 text-slate-300">
-              Look for special glowing tiles labeled <strong>2X</strong>. Include that letter in any found word to instantly double your multiplier score and trigger golden coin showers!
+              Swipe through glowing <strong>2X</strong> multiplier tiles to double your score combo and trigger coin showers!
             </p>
           </div>
-
-          <div class="bg-slate-900/70 p-3.5 rounded-xl border border-rose-500/30">
-            <h4 class="font-black text-rose-300 text-sm uppercase tracking-wider flex items-center gap-2">
-              <span>⚡</span> 3. DYNAMIC SCRAMBLE HAZARDS
+          <div class="bg-slate-900/70 p-3 rounded-xl border border-pink-500/30">
+            <h4 class="font-black text-pink-300 text-sm uppercase flex items-center gap-2">
+              <span>🐷</span> 3. PIGGY BANK VAULT
             </h4>
             <p class="mt-1 text-slate-300">
-              As you advance through the Saga Map, levels introduce hazards: 
-              <strong>🛡️ Safe Zone</strong> (calm search), 
-              <strong>🌀 Shift</strong> (scramble countdown), 
-              <strong>⚡ Quake</strong> (rapid earth-shaking shifts), and 
-              <strong>🌊 Flood</strong> (bad swipes cause un-cleared letters to cascade downward!).
+              Unlisted bonus words automatically deposit <strong>+15 coins</strong>. Smash the vault at 100+ coins to claim!
             </p>
           </div>
-
-          <div class="bg-slate-900/70 p-3.5 rounded-xl border border-pink-500/30">
-            <h4 class="font-black text-pink-300 text-sm uppercase tracking-wider flex items-center gap-2">
-              <span>🐷</span> 4. PIGGY BANK VAULT &amp; SECRET WORDS
+          <div class="bg-slate-900/70 p-3 rounded-xl border border-purple-500/30">
+            <h4 class="font-black text-purple-300 text-sm uppercase flex items-center gap-2">
+              <span>⚡</span> 4. SCRAMBLE HAZARDS &amp; MILESTONES
             </h4>
             <p class="mt-1 text-slate-300">
-              Discover valid English bonus words not on the target list to automatically deposit <strong>+15 Coins</strong> into your Piggy Bank! When filled to threshold, smash it to claim the golden stash directly into your wallet!
+              Experience Safe Zones, Gentle/Dynamic Shifts, Quakes, and Floods. Every 5 levels triggers a <strong>100-Coin Milestone</strong>!
             </p>
-          </div>
-
-          <div class="bg-slate-900/70 p-3.5 rounded-xl border border-purple-500/30">
-            <h4 class="font-black text-purple-300 text-sm uppercase tracking-wider flex items-center gap-2">
-              <span>🗺️</span> 5. SAGA TRAIL &amp; 100-COIN MILESTONES
-            </h4>
-            <p class="mt-1 text-slate-300">
-              Conquer levels through Neon Alley, Cyber Grid, and beyond. Every completed puzzle awards up to 3 stars ⭐, and <strong>every 5 levels triggers a 100-Coin Milestone Bonus</strong> celebrating that You're Crushing It!
-            </p>
-          </div>
-
-          <div class="bg-slate-900/70 p-3.5 rounded-xl border border-amber-500/30">
-            <h4 class="font-black text-amber-300 text-sm uppercase tracking-wider flex items-center gap-2">
-              <span>🛠️</span> 6. TACTICAL POWER-UP ARSENAL
-            </h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-              <div class="bg-black/50 p-2 rounded-lg border border-slate-800">
-                <span class="font-bold text-amber-400">🔍 Reveal:</span> Pulses an unsolved word and freezes scramble for 8s.
-              </div>
-              <div class="bg-black/50 p-2 rounded-lg border border-slate-800">
-                <span class="font-bold text-cyan-400">🌪️ Tornado:</span> Triggers an instant safe reshuffle of un-cleared tiles.
-              </div>
-              <div class="bg-black/50 p-2 rounded-lg border border-slate-800">
-                <span class="font-bold text-blue-400">❄️ Freeze:</span> Pauses the scramble shift countdown for 8s.
-              </div>
-              <div class="bg-black/50 p-2 rounded-lg border border-slate-800">
-                <span class="font-bold text-emerald-400">🏝️ Scene:</span> Cycles through glowing Azure Atoll, Palm Shore, and Coral Reef themes.
-              </div>
-            </div>
           </div>
         </div>
       </div>
     </div>
+
   </div>
-<script>
+
+  <script>
+    /* SHIFT IT: EXTREME! ENGINE (PART 1 OF SCRIPT) */
     const StorageProvider = {
       _mem: {},
       async get({ key }) { 
@@ -713,7 +724,7 @@
         audioCtx.resume().catch(() => {});
       }
     }
-    
+
     function playTone(freq, type, duration, vol = 0.10) {
       if (!audioCtx || !isSoundEnabled) return;
       ensureAudio();
@@ -727,6 +738,7 @@
         osc.start(); osc.stop(audioCtx.currentTime + duration);
       } catch(e) {}
     }
+
     function soundSelect() { playTone(550, 'sine', 0.05); }
     function soundDragShift(stepCount) { 
       playTone(466.16 + (stepCount * 32), 'sine', 0.04, 0.08); 
@@ -813,7 +825,7 @@
         setTimeout(() => playBellChime(f, 0, 0.25, 0.12), i * 70);
       });
     }
-    
+
     function soundShuffle() {
       if (!audioCtx || !isSoundEnabled || !isShuffleSoundEnabled) return; ensureAudio();
       [432, 540, 648].forEach(f => playTone(f, 'sine', 0.25));
@@ -847,17 +859,6 @@
             osc.start(); osc.stop(audioCtx.currentTime + 0.45);
           }, idx * 75);
         });
-
-        setTimeout(() => {
-          [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach(f => {
-            let osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-            osc.type = 'sine'; osc.frequency.setValueAtTime(f, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.13, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.95);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.95);
-          });
-        }, 390);
       } catch(e) {}
     }
 
@@ -873,32 +874,14 @@
       if (b) b.innerText = isShuffleSoundEnabled ? "🔊 SHUFFLE" : "🔇 MUTED";
     }
 
-    function openHowToPlay() { 
-      soundSelect(); 
-      document.getElementById('howToPlayModal')?.classList.remove('hidden'); 
-    }
-    function closeHowToPlay() { 
-      soundSelect(); 
-      document.getElementById('howToPlayModal')?.classList.add('hidden'); 
-    }
+    function openHowToPlay() { soundSelect(); document.getElementById('howToPlayModal')?.classList.remove('hidden'); }
+    function closeHowToPlay() { soundSelect(); document.getElementById('howToPlayModal')?.classList.add('hidden'); }
 
-    function openPiggyBankModal() {
-      soundSelect(); updatePiggyBankUI();
-      document.getElementById('piggyBankModal')?.classList.remove('hidden');
-    }
-    function closePiggyBankModal() {
-      soundSelect();
-      document.getElementById('piggyBankModal')?.classList.add('hidden');
-    }
+    function openPiggyBankModal() { soundSelect(); updatePiggyBankUI(); document.getElementById('piggyBankModal')?.classList.remove('hidden'); }
+    function closePiggyBankModal() { soundSelect(); document.getElementById('piggyBankModal')?.classList.add('hidden'); }
 
-    function openLevelRoadmapModal() {
-      soundSelect(); renderLevelRoadmapUI();
-      document.getElementById('levelRoadmapModal')?.classList.remove('hidden');
-    }
-    function closeLevelRoadmapModal() {
-      soundSelect();
-      document.getElementById('levelRoadmapModal')?.classList.add('hidden');
-    }
+    function openLevelRoadmapModal() { soundSelect(); renderLevelRoadmapUI(); document.getElementById('levelRoadmapModal')?.classList.remove('hidden'); }
+    function closeLevelRoadmapModal() { soundSelect(); document.getElementById('levelRoadmapModal')?.classList.add('hidden'); }
 
     function openMilestoneModal(levelNum) {
       soundMilestoneFanfare();
@@ -906,24 +889,13 @@
       if (sub) sub.innerText = `LEVEL ${levelNum} COMPLETED!`;
       document.getElementById('milestoneModal')?.classList.remove('hidden');
     }
-    function closeMilestoneModal() {
-      soundSelect();
-      document.getElementById('milestoneModal')?.classList.add('hidden');
-    }
+    function closeMilestoneModal() { soundSelect(); document.getElementById('milestoneModal')?.classList.add('hidden'); }
 
     function jigglePiggy() {
       const icon = document.getElementById('piggyModalIcon');
       const hudIcon = document.getElementById('piggyIcon');
-      if (icon) { 
-        icon.classList.remove('piggy-shake-active'); 
-        void icon.offsetWidth; 
-        icon.classList.add('piggy-shake-active'); 
-      }
-      if (hudIcon) { 
-        hudIcon.classList.remove('piggy-shake-active'); 
-        void hudIcon.offsetWidth; 
-        hudIcon.classList.add('piggy-shake-active'); 
-      }
+      if (icon) { icon.classList.remove('piggy-shake-active'); void icon.offsetWidth; icon.classList.add('piggy-shake-active'); }
+      if (hudIcon) { hudIcon.classList.remove('piggy-shake-active'); void hudIcon.offsetWidth; hudIcon.classList.add('piggy-shake-active'); }
       soundCoinClink();
     }
 
@@ -1017,7 +989,6 @@
       }
     }
 
-    /* WORD FIND REWARD BADGE: EXACTLY 3/4 SECOND (0.75s) */
     function spawnJuicePopup(path, praiseText, subText, color) {
       const wrapper = document.getElementById('gridWrapper');
       if (!wrapper || !path || path.length === 0) return;
@@ -1036,19 +1007,17 @@
       badge.style.left = `${sumX / path.length}px`;
       badge.style.top = `${sumY / path.length}px`;
       badge.innerHTML = `
-        <div class="text-sm md:text-base font-black tracking-wider" 
-             style="color: ${color}; text-shadow: 0 0 14px ${color}">
+        <div class="text-xs sm:text-sm md:text-base font-black tracking-wider" 
+             style="color: ${color}; text-shadow: 0 0 12px ${color}">
           ${praiseText}
         </div>
         ${subText ? `
-          <div class="text-[10px] md:text-xs font-extrabold text-yellow-300 tracking-wide mt-0.5 bg-black/80 px-2.5 py-0.5 rounded-full border border-yellow-400/50 shadow-md">
+          <div class="text-[9px] sm:text-[10px] font-extrabold text-yellow-300 tracking-wide mt-0.5 bg-black/80 px-2 py-0.5 rounded-full border border-yellow-400/50">
             ${subText}
           </div>` : ''}
       `;
       wrapper.appendChild(badge);
-      setTimeout(() => { 
-        if (badge.parentNode) badge.parentNode.removeChild(badge); 
-      }, 750);
+      setTimeout(() => { if (badge.parentNode) badge.parentNode.removeChild(badge); }, 750);
     }
 
     function triggerFlyingCoinToPiggy(path) {
@@ -1080,8 +1049,8 @@
 
           coin.style.setProperty('--tx', `${deltaX}px`);
           coin.style.setProperty('--ty', `${deltaY}px`);
-          coin.style.setProperty('--tx-half', `${deltaX * 0.5 + (Math.random() * 40 - 20)}px`);
-          coin.style.setProperty('--ty-half', `${deltaY * 0.5 - 35}px`);
+          coin.style.setProperty('--tx-half', `${deltaX * 0.5 + (Math.random() * 30 - 15)}px`);
+          coin.style.setProperty('--ty-half', `${deltaY * 0.5 - 30}px`);
 
           document.body.appendChild(coin);
           soundCoinClink();
@@ -1105,23 +1074,20 @@
         const cr = cell.getBoundingClientRect();
         const cx = (cr.left + cr.width / 2) - wr.left;
         const cy = (cr.top + cr.height / 2) - wr.top;
-        for (let i = 0; i < 5; i++) {
-          const angle = Math.random() * Math.PI * 2, speed = Math.random() * 4 + 2;
+        for (let i = 0; i < 4; i++) {
+          const angle = Math.random() * Math.PI * 2, speed = Math.random() * 3 + 2;
           wordSparks.push({ 
             x: cx, y: cy, 
             vx: Math.cos(angle) * speed, 
-            vy: Math.sin(angle) * speed - 1.2, 
-            radius: Math.random() * 3 + 2, 
-            color, alpha: 1.0, decay: 0.035 
+            vy: Math.sin(angle) * speed - 1.0, 
+            radius: Math.random() * 2.5 + 1.5, 
+            color, alpha: 1.0, decay: 0.04 
           });
         }
       });
       const ctx = canvas.getContext('2d');
       function anim() {
-        if (isMouseDown) { 
-          ctx.clearRect(0, 0, canvas.width, canvas.height); 
-          return; 
-        }
+        if (isMouseDown) { ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         let alive = false;
         wordSparks.forEach(p => {
@@ -1129,7 +1095,7 @@
           if (p.alpha > 0) {
             alive = true; ctx.save(); ctx.globalAlpha = p.alpha; ctx.beginPath();
             ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); 
-            ctx.fillStyle = p.color; ctx.shadowBlur = 10; ctx.shadowColor = p.color;
+            ctx.fillStyle = p.color; ctx.shadowBlur = 8; ctx.shadowColor = p.color;
             ctx.fill(); ctx.restore();
           }
         });
@@ -1144,25 +1110,22 @@
       if (!container) return;
       container.innerHTML = '';
       const colors = ['#f59e0b', '#ec4899', '#10b981', '#06b6d4', '#8b5cf6', '#eab308'];
-      for (let i = 0; i < 35; i++) {
+      for (let i = 0; i < 25; i++) {
         const streamer = document.createElement('div');
         streamer.className = 'party-streamer';
         streamer.style.left = `${Math.random() * 100}%`;
         streamer.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        streamer.style.animationDelay = `${Math.random() * 2.2}s`;
-        streamer.style.animationDuration = `${Math.random() * 2 + 2.2}s`;
-        streamer.style.transform = `scale(${Math.random() * 0.5 + 0.7})`;
+        streamer.style.animationDelay = `${Math.random() * 2.0}s`;
+        streamer.style.animationDuration = `${Math.random() * 1.8 + 2.0}s`;
         container.appendChild(streamer);
       }
     }
 
-    /* 3 TROPICAL PALETTES FROM DESIGN SEEDS */
     const GRAPHICS_THEME_ENGINES = [
       { 
         name: "AZURE ATOLL", 
         primary: '#5bb1e0', 
         bg: '#080517', 
-        text: 'text-cyan-400', 
         arenaBg: 'radial-gradient(circle at center, #0f466b 0%, #0a2d47 60%, #041624 100%)',
         bubbleBg: 'radial-gradient(circle at 35% 25%, #367ed3 0%, #1c448e 60%, #0b2047 100%)',
         bubbleBorder: '#81d2d0'
@@ -1171,7 +1134,6 @@
         name: "PALM SHORE", 
         primary: '#42d4eb', 
         bg: '#060a12', 
-        text: 'text-emerald-400', 
         arenaBg: 'radial-gradient(circle at center, #1b4b68 0%, #15374e 60%, #0a1f2e 100%)',
         bubbleBg: 'radial-gradient(circle at 35% 25%, #6a9640 0%, #3e631e 60%, #1b330a 100%)',
         bubbleBorder: '#f3caa1'
@@ -1180,7 +1142,6 @@
         name: "CORAL REEF", 
         primary: '#ff5e82', 
         bg: '#0a0412', 
-        text: 'text-rose-400', 
         arenaBg: 'radial-gradient(circle at center, #0a3d4d 0%, #062833 60%, #02141a 100%)',
         bubbleBg: 'radial-gradient(circle at 35% 25%, #ff5e82 0%, #b81944 60%, #52051a 100%)',
         bubbleBorder: '#b9eff5'
@@ -1195,11 +1156,11 @@
     ];
 
     const CAMPAIGN_CHAPTERS = [
-      { id: 1, name: "NEON ALLEY", range: "LVL 1 - 5", icon: "🏙️" },
-      { id: 2, name: "CYBER GRID", range: "LVL 6 - 10", icon: "⚡" },
-      { id: 3, name: "QUANTUM NEXUS", range: "LVL 11 - 15", icon: "🔮" },
-      { id: 4, name: "SOLAR FLARE", range: "LVL 16 - 20", icon: "☀️" },
-      { id: 5, name: "INFINITE MATRIX", range: "LVL 21+", icon: "🌌" }
+      { id: 1, name: "NEON ALLEY", range: "LVL 1 - 5" },
+      { id: 2, name: "CYBER GRID", range: "LVL 6 - 10" },
+      { id: 3, name: "QUANTUM NEXUS", range: "LVL 11 - 15" },
+      { id: 4, name: "SOLAR FLARE", range: "LVL 16 - 20" },
+      { id: 5, name: "INFINITE MATRIX", range: "LVL 21+" }
     ];
 
     function getChapterForLevel(lvl) {
@@ -1210,42 +1171,17 @@
       return CAMPAIGN_CHAPTERS[4];
     }
 
-    /* VARIABLE SCRAMBLE HAZARDS CONFIGURATION */
     function getHazardForLevel(lvl) {
       if (isExtremeMode) {
-        if (lvl % 3 === 0) return { 
-          type: 'QUAKE', label: '⚡ EXTREME QUAKE', 
-          icon: '⚡', color: 'text-rose-400', interval: 15 
-        };
-        if (lvl % 2 === 0) return { 
-          type: 'FLOOD', label: '🌊 EXTREME FLOOD', 
-          icon: '🌊', color: 'text-cyan-400', interval: 25 
-        };
-        return { 
-          type: 'SHIFT', label: '🌀 EXTREME SHIFT', 
-          icon: '🌀', color: 'text-amber-400', interval: 20 
-        };
+        if (lvl % 3 === 0) return { type: 'QUAKE', label: '⚡ EXTREME QUAKE', icon: '⚡', color: 'text-rose-400', interval: 15 };
+        if (lvl % 2 === 0) return { type: 'FLOOD', label: '🌊 EXTREME FLOOD', icon: '🌊', color: 'text-cyan-400', interval: 25 };
+        return { type: 'SHIFT', label: '🌀 EXTREME SHIFT', icon: '🌀', color: 'text-amber-400', interval: 20 };
       }
-      if (lvl <= 2) return { 
-        type: 'SAFE', label: '🛡️ SAFE ZONE', 
-        icon: '🛡️', color: 'text-emerald-400', interval: 0 
-      };
-      if (lvl <= 5) return { 
-        type: 'SHIFT', label: '🌀 GENTLE SHIFT', 
-        icon: '🌀', color: 'text-cyan-400', interval: 50 
-      };
-      if (lvl % 5 === 0 || lvl === 6 || lvl === 10) return { 
-        type: 'QUAKE', label: '⚡ QUAKE HAZARD', 
-        icon: '⚡', color: 'text-yellow-400', interval: 20 
-      };
-      if (lvl % 4 === 0 || lvl === 9 || lvl === 14) return { 
-        type: 'FLOOD', label: '🌊 FLOOD HAZARD', 
-        icon: '🌊', color: 'text-blue-400', interval: 40 
-      };
-      return { 
-        type: 'SHIFT', label: '🌀 DYNAMIC SHIFT', 
-        icon: '🌀', color: 'text-cyan-300', interval: 35 
-      };
+      if (lvl <= 2) return { type: 'SAFE', label: '🛡️ SAFE ZONE', icon: '🛡️', color: 'text-emerald-400', interval: 0 };
+      if (lvl <= 5) return { type: 'SHIFT', label: '🌀 GENTLE SHIFT', icon: '🌀', color: 'text-cyan-400', interval: 50 };
+      if (lvl % 5 === 0 || lvl === 6 || lvl === 10) return { type: 'QUAKE', label: '⚡ QUAKE HAZARD', icon: '⚡', color: 'text-yellow-400', interval: 20 };
+      if (lvl % 4 === 0 || lvl === 9 || lvl === 14) return { type: 'FLOOD', label: '🌊 FLOOD HAZARD', icon: '🌊', color: 'text-blue-400', interval: 40 };
+      return { type: 'SHIFT', label: '🌀 DYNAMIC SHIFT', icon: '🌀', color: 'text-cyan-300', interval: 35 };
     }
 
     const BONUS_WORDS_DICTIONARY = new Set([
@@ -1266,24 +1202,20 @@
     let comboMultiplier = 1.0, highestComboThisMatch = 1.0, calculatedMatchScore = 0;
     let currencyVault = 0, piggyBankCoins = 0;
     const PIGGY_BANK_CAPACITY = 250;
-    
-    // PROGRESSION FIX: SEPARATES PLAY SESSION FROM UNLOCKED RECORD
+
     let currentLevel = 1;
     let unlockedLevel = 1;
     let levelStarsMap = {};
     let claimedMilestones = {};
 
-    let currentHazard = { 
-      type: 'SAFE', label: '🛡️ SAFE ZONE', 
-      icon: '🛡️', color: 'text-emerald-400', interval: 0 
-    };
+    let currentHazard = { type: 'SAFE', label: '🛡️ SAFE ZONE', icon: '🛡️', color: 'text-emerald-400', interval: 0 };
     let multiplierTilesMap = {};
 
-    let wordsList = [], foundWords = [], foundBonusWords = [], gridDim = 9;
+    let wordsList = [], foundWords = [], foundBonusWords = [], gridDim = 8;
     let gridMatrix = [], wordCoordinates = {}, activeSelection = [];
     let puzzlesCompleted = { standard: 0, extreme: 0 };
-    
-    let matchTimeRemaining = 255;
+
+    let matchTimeRemaining = 240;
     let gameTimeElapsed = 0, shuffleCountdown = 45;
     let gameTimerInterval = null, shuffleTimerInterval = null;
     let isMouseDown = false, startCellIdx = null;
@@ -1320,9 +1252,10 @@
           if (!isMouseDown) return;
           e.preventDefault();
           const touch = e.touches[0];
-          const element = document.elementFromPoint(touch.clientX, touch.clientY);
-          if (element && element.id && element.id.startsWith('cell-')) {
-            const [, r, c] = element.id.split('-').map(Number);
+          const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+          const cell = targetElement?.closest('.grid-token');
+          if (cell && cell.id && cell.id.startsWith('cell-')) {
+            const [, r, c] = cell.id.split('-').map(Number);
             updateSwipe(r, c);
           }
         }, { passive: false });
@@ -1363,9 +1296,7 @@
 
     async function loadProgress() {
       let rec = await StorageProvider.get({ key: 'sie_progress_v6' });
-      if (!rec || !rec.value) {
-        rec = await StorageProvider.get({ key: 'sie_progress_v5' });
-      }
+      if (!rec || !rec.value) rec = await StorageProvider.get({ key: 'sie_progress_v5' });
       if (!rec || !rec.value) return;
       try {
         const p = JSON.parse(rec.value);
@@ -1389,12 +1320,10 @@
 
     function updatePiggyBankUI() {
       const fillPct = Math.min(100, Math.floor((piggyBankCoins / PIGGY_BANK_CAPACITY) * 100));
-      const pctEl = document.getElementById('piggyFillPctText');
       const coinsEl = document.getElementById('piggyCoinsText');
       const progValEl = document.getElementById('piggyProgressVal');
       const fillBarEl = document.getElementById('piggyFillBar');
-      if (pctEl) pctEl.innerText = `${fillPct}%`;
-      if (coinsEl) coinsEl.innerText = `${piggyBankCoins} / ${PIGGY_BANK_CAPACITY}`;
+      if (coinsEl) coinsEl.innerText = `${piggyBankCoins}/${PIGGY_BANK_CAPACITY}`;
       if (progValEl) progValEl.innerText = `${piggyBankCoins} / ${PIGGY_BANK_CAPACITY} COINS`;
       if (fillBarEl) fillBarEl.style.width = `${fillPct}%`;
 
@@ -1427,8 +1356,7 @@
       updatePiggyBankUI();
       updateStatsBar();
       saveProgress();
-      
-      triggerBonusBanner(`💥 SMASHED! +${claimed} COINS TRANSFERRED TO WALLET!`);
+      triggerBonusBanner(`💥 SMASHED! +${claimed} COINS CLAIMED!`);
       closePiggyBankModal();
       jigglePiggy();
     }
@@ -1448,7 +1376,6 @@
       if (starEl) starEl.innerText = totalStars;
     }
 
-    /* SAGA OVERWORLD TRAIL MAP */
     function renderLevelRoadmapUI() {
       const ch = getChapterForLevel(currentLevel);
       const rChap = document.getElementById('roadmapCurrentChapter');
@@ -1464,7 +1391,6 @@
       container.innerHTML = '';
 
       const maxRenderLvl = Math.max(unlockedLevel + 4, 15);
-      
       for (let l = 1; l <= maxRenderLvl; l++) {
         const isCurrent = l === currentLevel;
         const isCleared = l < unlockedLevel;
@@ -1478,12 +1404,11 @@
         if (isCurrent) {
           nodeRow.className += " bg-gradient-to-r from-purple-900/90 to-indigo-900/90 border-cyan-400 shadow-[0_0_20px_rgba(0,243,255,0.4)] animate-pulse";
         } else if (isUnlocked) {
-          nodeRow.className += " bg-slate-900/70 border-slate-800 opacity-95 cursor-pointer hover:border-cyan-400";
+          nodeRow.className += " bg-slate-900/70 border-slate-800 cursor-pointer hover:border-cyan-400";
         } else {
           nodeRow.className += " bg-slate-950/40 border-slate-900 opacity-40 cursor-not-allowed";
         }
 
-        const leftIcon = isMilestone ? '🎁' : (isCleared ? '✓' : (isCurrent ? '▶' : '🔒'));
         const starStr = isCleared 
           ? '⭐'.repeat(stars) 
           : (isCurrent ? '<span class="text-xs font-black text-cyan-300">ACTIVE</span>' : '<span class="text-[10px] text-slate-500">LOCKED</span>');
@@ -1492,13 +1417,11 @@
           <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-full flex items-center justify-center font-black text-xs ${
               isCurrent ? 'bg-cyan-400 text-slate-950 shadow-lg' : (isCleared ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400')
-            }">
-              ${l}
-            </div>
+            }">${l}</div>
             <div>
               <div class="text-xs font-black ${isCurrent ? 'text-white' : 'text-slate-300'} flex items-center gap-1.5">
                 <span>${isMilestone ? 'MILESTONE CHEST' : 'Level ' + l}</span>
-                <span class="text-sm">${leftIcon}</span>
+                <span class="text-sm">${isMilestone ? '🎁' : (isCleared ? '✓' : (isCurrent ? '▶' : '🔒'))}</span>
               </div>
               <div class="text-[9px] text-slate-400 font-bold">${getChapterForLevel(l).name}</div>
             </div>
@@ -1506,11 +1429,7 @@
           <div class="text-sm font-black flex items-center gap-1">${starStr}</div>
         `;
 
-        if (isUnlocked) {
-          nodeRow.onclick = () => {
-            selectSagaLevel(l);
-          };
-        }
+        if (isUnlocked) nodeRow.onclick = () => selectSagaLevel(l);
         container.appendChild(nodeRow);
       }
     }
@@ -1533,7 +1452,7 @@
         currencyVault -= 40; triggerTornado();
       } else if (type === 'FREEZE') {
         if (currencyVault < 60) { triggerBonusBanner('Need 60 coins'); return; }
-        currencyVault -= 60; toggleFreezeGrid(); triggerBonusBanner('Scramble Frozen for 8s!');
+        currencyVault -= 60; toggleFreezeGrid(); triggerBonusBanner('Frozen for 8s!');
       } else if (type === 'SKIN') {
         currentThemeIndex = (currentThemeIndex + 1) % GRAPHICS_THEME_ENGINES.length;
         syncThemeVisuals(); 
@@ -1561,10 +1480,7 @@
 
     function triggerTornado() {
       soundTornado(); triggerGridPunch(); shuffleUnusedLetters();
-      spawnJuicePopup(
-        [{r: Math.floor(gridDim/2), c: Math.floor(gridDim/2)}], 
-        'TORNADO!', 'TACTICAL RESHUFFLE', '#38bdf8'
-      );
+      spawnJuicePopup([{r: Math.floor(gridDim/2), c: Math.floor(gridDim/2)}], 'TORNADO!', 'RESHUFFLED', '#38bdf8');
     }
 
     function updateStatsBar() {
@@ -1582,38 +1498,33 @@
       const banner = document.getElementById('bonusAlertBox');
       if (!banner) return;
       banner.innerText = textMessage;
-      banner.className = "h-7 mb-1 flex items-center justify-center text-[10px] font-black text-center rounded-xl transition-all scale-100 opacity-100 bg-emerald-500 text-white shadow-md";
+      banner.className = "h-6 sm:h-7 mb-1 flex items-center justify-center text-[9px] sm:text-[10px] font-black text-center rounded-xl transition-all scale-100 opacity-100 bg-emerald-500 text-white shadow-md flex-shrink-0";
       setTimeout(() => { 
-        banner.className = "h-7 mb-1 flex items-center justify-center text-[10px] font-black text-center rounded-xl transition-all scale-95 opacity-0 bg-emerald-950 text-emerald-400 border border-emerald-800"; 
+        banner.className = "h-6 sm:h-7 mb-1 flex items-center justify-center text-[9px] sm:text-[10px] font-black text-center rounded-xl transition-all scale-95 opacity-0 bg-emerald-950 text-emerald-400 border border-emerald-800 flex-shrink-0"; 
       }, 2400);
     }
 
     function resetShuffleTimer() {
       clearInterval(shuffleTimerInterval);
+      const box = document.getElementById('shuffle-countdown-box');
+      const tEl = document.getElementById('timer-shuffle');
       if (currentHazard.type === 'SAFE' || currentHazard.interval <= 0) {
-        const box = document.getElementById('shuffle-countdown-box');
         if (box) box.classList.add('opacity-40');
-        const tEl = document.getElementById('timer-shuffle');
         if (tEl) tEl.innerText = "SAFE";
         return;
       }
-      const box = document.getElementById('shuffle-countdown-box');
       if (box) box.classList.remove('opacity-40');
 
       shuffleTimerInterval = setInterval(() => {
         if (isGridFrozen || gameWon || isGamePaused()) return;
         shuffleCountdown--;
         if(shuffleCountdown <= 0) {
-          if (currentHazard.type === 'QUAKE') {
-            triggerQuakeRumble();
-          } else {
-            shuffleUnusedLetters();
-          }
+          if (currentHazard.type === 'QUAKE') triggerQuakeRumble();
+          else shuffleUnusedLetters();
           comboMultiplier = Math.max(1.0, comboMultiplier - 0.2);
           updateStatsBar();
           shuffleCountdown = currentHazard.interval;
         }
-        const tEl = document.getElementById('timer-shuffle');
         if (tEl) tEl.innerText = shuffleCountdown + "s";
       }, 1000);
     }
@@ -1626,18 +1537,13 @@
         setTimeout(() => arena.classList.remove('quake-active'), 650);
       }
       shuffleUnusedLetters();
-      spawnJuicePopup(
-        [{r: Math.floor(gridDim/2), c: Math.floor(gridDim/2)}], 
-        '⚡ QUAKE SHIFT!', 'BOARD SCRAMBLED', '#f59e0b'
-      );
+      spawnJuicePopup([{r: Math.floor(gridDim/2), c: Math.floor(gridDim/2)}], '⚡ QUAKE!', 'SHUFFLED', '#f59e0b');
     }
 
     function triggerFloodCascade() {
       soundHazardAlert();
       let reservedCells = {};
-      foundWords.forEach(f => (f.path || []).forEach(pt => { 
-        reservedCells[`${pt.r},${pt.c}`] = true; 
-      }));
+      foundWords.forEach(f => (f.path || []).forEach(pt => { reservedCells[`${pt.r},${pt.c}`] = true; }));
       Object.keys(wordCoordinates).forEach(word => {
         wordCoordinates[word].forEach(pt => { reservedCells[`${pt.r},${pt.c}`] = true; });
       });
@@ -1666,11 +1572,7 @@
 
       const targetMask = buildTargetMask(gridDim, wordCoordinates);
       scrubGrid(gridMatrix, targetMask);
-
-      spawnJuicePopup(
-        [{r: Math.floor(gridDim/2), c: Math.floor(gridDim/2)}], 
-        '🌊 FLOOD SHIFT!', 'LETTERS CASCADED', '#38bdf8'
-      );
+      spawnJuicePopup([{r: Math.floor(gridDim/2), c: Math.floor(gridDim/2)}], '🌊 FLOOD!', 'CASCADED', '#38bdf8');
     }
 
     function toggleFreezeGrid() {
@@ -1680,7 +1582,7 @@
       if (bText) bText.innerText = "FROZEN";
       freezeTimeoutId = setTimeout(() => { 
         isGridFrozen = false; 
-        if (bText) bText.innerText = "Ad Freeze"; 
+        if (bText) bText.innerText = "Free Freeze"; 
       }, 8000);
     }
 
@@ -1699,7 +1601,7 @@
 
       if (isExtremeMode) {
         if (btn) {
-          btn.innerText = 'Normal Mode';
+          btn.innerText = 'NORMAL';
           btn.className = 'px-3 py-1 text-xs font-black rounded-xl border-2 border-rose-500 bg-rose-600 text-white tracking-wider';
         }
         if (canvas) {
@@ -1817,14 +1719,14 @@
         hazardBadge.className = `flex items-center gap-1 text-[10px] font-black tracking-wider ${currentHazard.color}`;
       }
 
-      let baseWordCount = Math.min(10, 4 + Math.floor(currentLevel / 3));
-      if (isExtremeMode) baseWordCount = Math.min(12, baseWordCount + 2);
+      let baseWordCount = Math.min(8, 4 + Math.floor(currentLevel / 3));
+      if (isExtremeMode) baseWordCount = Math.min(10, baseWordCount + 2);
       
-      gridDim = Math.min(11, 8 + Math.floor(currentLevel / 4));
-      if (isExtremeMode) gridDim = Math.min(12, gridDim + 1);
+      gridDim = Math.min(10, 8 + Math.floor(currentLevel / 5));
+      if (isExtremeMode) gridDim = Math.min(11, gridDim + 1);
 
-      let baseTimerSeconds = 240 + Math.min(180, currentLevel * 10);
-      if (isExtremeMode) baseTimerSeconds += 60;
+      let baseTimerSeconds = 240 + Math.min(160, currentLevel * 8);
+      if (isExtremeMode) baseTimerSeconds += 40;
       matchTimeRemaining = baseTimerSeconds;
 
       let puzzle = null;
@@ -1833,8 +1735,8 @@
         puzzle = buildPuzzle(wordsList, gridDim);
       }
       if (!puzzle) {
-        gridDim = Math.max(gridDim, 10);
-        wordsList = [...BASE_MICRO_VOCAB].sort((a, b) => a.length - b.length).slice(0, Math.min(baseWordCount, 7));
+        gridDim = Math.max(gridDim, 8);
+        wordsList = [...BASE_MICRO_VOCAB].sort((a, b) => a.length - b.length).slice(0, Math.min(baseWordCount, 6));
         puzzle = buildPuzzle(wordsList, gridDim) || { 
           matrix: Array.from({length: gridDim}, () => Array(gridDim).fill('E')), 
           coords: {} 
@@ -1910,7 +1812,8 @@
       }, 1000);
     }
 
-    function triggerTimeExpiredModal() {
+    /* === END OF PART 1 (PASTE PART 2 DIRECTLY BELOW) === */
+function triggerTimeExpiredModal() {
       if (gameWon) return;
       const remaining = wordsList.length - foundWords.length;
       const msg = document.getElementById('nearMissMessage');
@@ -1925,7 +1828,7 @@
         if (currencyVault < 50) { 
           const warn = document.getElementById('nearMissWarningBox');
           if (warn) {
-            warn.innerText = `⚠️ Need 50 coins! You currently have ${currencyVault}.`;
+            warn.innerText = `⚠️ Need 50 coins! (Have: ${currencyVault})`;
             warn.classList.remove('hidden');
           }
           return; 
@@ -1942,10 +1845,7 @@
       updateTimerDisplay(); updateStatsBar();
       document.getElementById('timeExpiredModal')?.classList.add('hidden');
       startMatchCountdown();
-      spawnJuicePopup(
-        [{r: Math.floor(gridDim/2), c: Math.floor(gridDim/2)}], 
-        '+25 SECONDS!', 'STREAK SAVED', '#38bdf8'
-      );
+      spawnJuicePopup([{r: Math.floor(gridDim/2), c: Math.floor(gridDim/2)}], '+25 SECONDS!', 'SAVED', '#38bdf8');
     }
 
     function giveUpMatch() {
@@ -1957,9 +1857,7 @@
     function shuffleUnusedLetters() {
       soundShuffle();
       let reservedCells = {};
-      foundWords.forEach(f => (f.path || []).forEach(pt => { 
-        reservedCells[`${pt.r},${pt.c}`] = true; 
-      }));
+      foundWords.forEach(f => (f.path || []).forEach(pt => { reservedCells[`${pt.r},${pt.c}`] = true; }));
       if (isMouseDown) {
         activeSelection.forEach(pt => { reservedCells[`${pt.r},${pt.c}`] = true; });
       }
@@ -2002,7 +1900,7 @@
         for(let c=0; c<gridDim; c++) {
           const token = document.createElement('div');
           token.id = `cell-${r}-${c}`;
-          token.className = "grid-token aspect-square flex items-center justify-center font-black text-xs sm:text-sm select-none";
+          token.className = "grid-token aspect-square flex items-center justify-center font-black select-none";
           
           if (multiplierTilesMap[`${r},${c}`]) {
             token.classList.add('multiplier-tile');
@@ -2016,20 +1914,20 @@
         }
       }
       updateGridLetterVisibility();
-      setTimeout(resizeCanvas, 150);
+      setTimeout(resizeCanvas, 120);
     }
 
     function renderSidebarWords() {
       const container = document.getElementById('targetWordsContainer');
       if (!container) return;
       container.innerHTML = '';
-      const twoCols = wordsList.length > 8;
-      container.style.gridTemplateColumns = twoCols ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)';
-      container.style.gap = twoCols ? '2px' : '0';
+      const isMultiCol = wordsList.length > 5;
+      container.style.gridTemplateColumns = isMultiCol ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)';
+      container.style.gap = '4px';
 
       wordsList.forEach((word) => {
         const textSpan = document.createElement('div');
-        textSpan.className = `p-1 rounded bg-slate-900/40 border border-slate-800 text-center text-cyan-300 font-extrabold text-xs transition-all`;
+        textSpan.className = `py-1 px-1.5 rounded bg-slate-900/40 border border-slate-800 text-center text-cyan-300 font-extrabold text-[10px] sm:text-[11px] truncate`;
         if (foundWords.some(f => f.word === word)) {
           textSpan.className += " line-through opacity-40 text-emerald-400";
         }
@@ -2041,7 +1939,6 @@
       if (pill) pill.innerText = `${foundWords.length}/${wordsList.length}`;
     }
 
-    /* ANTI-CHEAT FIX: PREVENTS MULTI-TOUCH HIJACKING */
     function startSwipe(r, c) { 
       if (gameWon || isMouseDown) return; 
       ensureAudio(); 
@@ -2052,7 +1949,7 @@
       highlightCells(); 
       drawLiveDragLine(); 
     }
-    
+
     function updateSwipe(r, c) {
       if(!isMouseDown || !startCellIdx) return;
       let dR = r - startCellIdx.r, dC = c - startCellIdx.c;
@@ -2097,7 +1994,7 @@
       ctx.save(); ctx.beginPath();
       ctx.moveTo(a.left + a.width / 2 - wr.left, a.top + a.height / 2 - wr.top);
       ctx.lineTo(b.left + b.width / 2 - wr.left, b.top + b.height / 2 - wr.top);
-      ctx.lineCap = 'round'; ctx.lineWidth = a.width * 0.7;
+      ctx.lineCap = 'round'; ctx.lineWidth = a.width * 0.65;
       ctx.strokeStyle = '#bae6fd'; ctx.globalAlpha = 0.35; ctx.stroke(); ctx.restore();
     }
 
@@ -2114,8 +2011,8 @@
 
       if(matched) {
         let currentTime = Date.now(), isRapidSuccession = false;
-        
         let hitMultiplier = false;
+
         activeSelection.forEach(pt => {
           if (multiplierTilesMap[`${pt.r},${pt.c}`]) {
             hitMultiplier = true;
@@ -2173,7 +2070,7 @@
           addCoinsToPiggy(15);
           triggerFlyingCoinToPiggy(activeSelection);
           spawnJuicePopup(activeSelection, 'BONUS WORD!', `+15 PIGGY COINS`, '#fbbf24');
-          triggerBonusBanner(`🐷 SECRET WORD '${bonusMatched}' BANKED! (+15 Coins)`);
+          triggerBonusBanner(`🐷 SECRET WORD '${bonusMatched}' BANKED! (+15)`);
         } else if (currentHazard.type === 'FLOOD' && activeSelection.length >= 3) {
           triggerFloodCascade();
         }
@@ -2212,8 +2109,8 @@
         ctx.save(); ctx.beginPath();
         ctx.moveTo((startRect.left + startRect.width/2) - wrapperRect.left, (startRect.top + startRect.height/2) - wrapperRect.top);
         ctx.lineTo((endRect.left + endRect.width/2) - wrapperRect.left, (endRect.top + endRect.height/2) - wrapperRect.top);
-        ctx.lineCap = 'round'; ctx.lineWidth = startRect.width * 0.7; ctx.strokeStyle = found.color; ctx.globalAlpha = 0.55;
-        ctx.shadowBlur = 14; ctx.shadowColor = found.shadow; ctx.stroke(); ctx.restore();
+        ctx.lineCap = 'round'; ctx.lineWidth = startRect.width * 0.65; ctx.strokeStyle = found.color; ctx.globalAlpha = 0.55;
+        ctx.shadowBlur = 10; ctx.shadowColor = found.shadow; ctx.stroke(); ctx.restore();
       });
     }
 
@@ -2226,12 +2123,6 @@
         if(isExtremeMode) puzzlesCompleted.extreme = (puzzlesCompleted.extreme || 0) + 1;
         else puzzlesCompleted.standard = (puzzlesCompleted.standard || 0) + 1;
 
-        const mCanvas = document.getElementById('masterCanvas');
-        if (mCanvas) {
-          mCanvas.classList.add('juice-animate');
-          setTimeout(() => mCanvas.classList.remove('juice-animate'), 400);
-        }
-
         const safeTime = Math.max(0, matchTimeRemaining);
         const timeBonus = safeTime * 35;
         const roundCoins = Math.floor(100 * highestComboThisMatch);
@@ -2241,18 +2132,13 @@
         const piggyLevelBonus = 35 + (currentLevel * 5);
         addCoinsToPiggy(piggyLevelBonus);
 
-        // STAR EVALUATION
         let starsEarned = 1;
         if (matchTimeRemaining > 100 && highestComboThisMatch >= 1.5) starsEarned = 3;
         else if (matchTimeRemaining > 40) starsEarned = 2;
         levelStarsMap[currentLevel] = Math.max(levelStarsMap[currentLevel] || 0, starsEarned);
 
-        // PROGRESSION ADVANCEMENT
-        if (currentLevel === unlockedLevel) {
-          unlockedLevel++;
-        }
+        if (currentLevel === unlockedLevel) unlockedLevel++;
 
-        // ANTI-CHEAT MILESTONE BONUS CHECK
         const isMilestone = (currentLevel % 5 === 0);
         let awardedMilestone = false;
         if (isMilestone && !claimedMilestones[currentLevel]) {
@@ -2263,14 +2149,12 @@
         }
 
         const s1 = document.getElementById('vStar1'), s2 = document.getElementById('vStar2'), s3 = document.getElementById('vStar3');
-        if (s1) s1.className = starsEarned >= 1 ? 'star-pop-1 opacity-100' : 'opacity-20';
-        if (s2) s2.className = starsEarned >= 2 ? 'star-pop-2 opacity-100' : 'opacity-20';
-        if (s3) s3.className = starsEarned >= 3 ? 'star-pop-3 opacity-100' : 'opacity-20';
+        if (s1) s1.className = starsEarned >= 1 ? 'opacity-100' : 'opacity-20';
+        if (s2) s2.className = starsEarned >= 2 ? 'opacity-100' : 'opacity-20';
+        if (s3) s3.className = starsEarned >= 3 ? 'opacity-100' : 'opacity-20';
 
         let minElapsed = Math.floor(gameTimeElapsed / 60).toString().padStart(2, '0');
         let secElapsed = (gameTimeElapsed % 60).toString().padStart(2, '0');
-        let minRemain = Math.floor(safeTime / 60).toString().padStart(2, '0');
-        let secRemain = (safeTime % 60).toString().padStart(2, '0');
 
         const vHead = document.getElementById('victoryHeadline');
         const vBtn = document.getElementById('nextLevelBtnText');
@@ -2280,34 +2164,26 @@
 
         if (vStats) {
           vStats.innerHTML = `
-            <div class="flex justify-between items-center border-b border-cyan-500/30 pb-1.5">
+            <div class="flex justify-between items-center border-b border-cyan-500/30 pb-1">
               <span class="text-cyan-300 font-bold">🎯 WORDS CLEARED</span>
               <span class="text-white font-black">${wordsList.length} / ${wordsList.length}</span>
             </div>
-            <div class="flex justify-between items-center border-b border-cyan-500/30 py-1.5">
+            <div class="flex justify-between items-center border-b border-cyan-500/30 py-1">
               <span class="text-pink-300 font-bold">⏱️ TIME TAKEN</span>
               <span class="text-white font-mono font-bold">${minElapsed}:${secElapsed}</span>
             </div>
-            <div class="flex justify-between items-center border-b border-cyan-500/30 py-1.5">
-              <span class="text-cyan-300 font-bold">⚡ TIME BONUS</span>
-              <span class="text-emerald-400 font-mono font-bold">${minRemain}:${secRemain} (+${timeBonus} pts)</span>
-            </div>
-            <div class="flex justify-between items-center border-b border-cyan-500/30 py-1.5">
-              <span class="text-amber-300 font-bold">🪙 WALLET GAINED</span>
+            <div class="flex justify-between items-center border-b border-cyan-500/30 py-1">
+              <span class="text-amber-300 font-bold">🪙 COINS GAINED</span>
               <span class="text-amber-400 font-black font-mono">+${roundCoins} COINS</span>
             </div>
             ${awardedMilestone ? `
-            <div class="flex justify-between items-center border-b border-cyan-500/30 py-1.5 bg-amber-950/40 px-2 rounded-lg">
+            <div class="flex justify-between items-center border-b border-cyan-500/30 py-1 bg-amber-950/40 px-1.5 rounded">
               <span class="text-yellow-300 font-black">🏆 MILESTONE BONUS</span>
               <span class="text-yellow-400 font-black font-mono">+100 COINS</span>
             </div>` : ''}
-            <div class="flex justify-between items-center border-b border-cyan-500/30 py-1.5">
-              <span class="text-pink-300 font-bold">🐷 PIGGY BANKED</span>
-              <span class="text-pink-400 font-black font-mono">+${piggyLevelBonus} COINS</span>
-            </div>
-            <div class="flex justify-between items-center pt-1.5 text-base font-black">
+            <div class="flex justify-between items-center pt-1 text-sm font-black">
               <span class="text-cyan-200">TOTAL SCORE</span>
-              <span class="text-yellow-400 font-mono text-lg">${calculatedMatchScore} PTS</span>
+              <span class="text-yellow-400 font-mono">${calculatedMatchScore} PTS</span>
             </div>
           `;
         }
@@ -2326,7 +2202,7 @@
       const val = inputField ? inputField.value.trim() : "Word Master";
       await saveScoreToLeaderboard(val || "Word Master", calculatedMatchScore, isExtremeMode ? 'EXTREME' : 'STANDARD', highestComboThisMatch);
       document.getElementById('highScoreForm')?.classList.add('hidden');
-      triggerBonusBanner('Name & Score Saved to Leaderboard!');
+      triggerBonusBanner('Score Saved to Leaderboard!');
     }
 
     function advanceToNextPuzzle() {
@@ -2375,9 +2251,9 @@
       if(rec && rec.value) try { records = JSON.parse(rec.value); } catch(e){}
       const c = document.getElementById('leaderboardRowsContainer');
       if (!c) return;
-      c.innerHTML = records.length ? '' : `<div class="text-center text-neutral-500 py-8 text-xs font-bold">No Records Yet</div>`;
+      c.innerHTML = records.length ? '' : `<div class="text-center text-neutral-500 py-6 text-xs font-bold">No Records Yet</div>`;
       records.forEach((entry, i) => {
-        c.innerHTML += `<div class="flex justify-between items-center bg-neutral-950/60 border border-neutral-800 rounded-xl px-3 py-2 text-xs">
+        c.innerHTML += `<div class="flex justify-between items-center bg-neutral-950/60 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs">
           <div><span class="font-black text-amber-400 mr-2">#${i+1}</span><span class="font-bold text-neutral-200">${escapeHTML(entry.name)}</span></div>
           <div class="font-black text-purple-400 font-mono">${entry.score} pts</div>
         </div>`;
