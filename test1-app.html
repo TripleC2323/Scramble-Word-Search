@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#123b62">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Shift It — Design B: Open Floating Bubbles</title>
+<title>Shift It — Design B v2: Three-Row Word List</title>
 <style>
 :root {color-scheme: dark; --ink:#f7fdff; --soft:#add6eb; --cyan:#39edff; --gold:#ffe783; --touch-font:clamp(14px,3.7vw,17px);}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{margin:0;padding:0;min-height:100%;background:#082039}
-body{margin:0;min-height:100svh;min-height:100dvh;color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;overscroll-behavior-y:contain;background:#07223c}
-body::before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(ellipse at 50% -10%,#4ec8e8 0%,transparent 48%),linear-gradient(155deg,#1477a1 0%,#176b86 38%,#162f57 72%,#071b36 100%)}
+body{margin:0;min-height:100svh;min-height:100dvh;color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;overscroll-behavior-y:contain;background:radial-gradient(ellipse at 50% -10%,#4ec8e8a6 0%,transparent 48%),linear-gradient(155deg,var(--scene-a,#1477a1) 0%,var(--scene-b,#176b86) 38%,var(--scene-c,#162f57) 72%,#071b36 100%);background-attachment:fixed}
+body::before{display:none;content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(ellipse at 50% -10%,#4ec8e8 0%,transparent 48%),linear-gradient(155deg,var(--scene-a,#1477a1) 0%,var(--scene-b,#176b86) 38%,var(--scene-c,#162f57) 72%,#071b36 100%)}
 body::after{content:"";pointer-events:none;position:fixed;inset:0;z-index:-1;opacity:.5;background:radial-gradient(ellipse at 20% 65%,#76cedb55,transparent 40%),radial-gradient(ellipse at 85% 28%,#c783f555,transparent 45%)}
 .app{width:min(100%,550px);min-height:100svh;min-height:100dvh;margin:0 auto;display:flex;flex-direction:column;gap:clamp(7px,1.1dvh,12px);padding:calc(env(safe-area-inset-top) + 6px) 7px calc(env(safe-area-inset-bottom) + 8px);}
 .compare-header{font-size:12px;line-height:1.3;letter-spacing:.10em;font-weight:800;color:#dcfaff;text-align:center;opacity:.94;text-shadow:0 1px 5px #00152c;min-height:15px}
@@ -30,8 +30,8 @@ body::after{content:"";pointer-events:none;position:fixed;inset:0;z-index:-1;opa
 .stat strong{font-size:clamp(19px,5.7vw,25px);color:#82efff;font-weight:950;font-variant-numeric:tabular-nums;white-space:nowrap;}
 .word-panel{border:1.5px solid #3ee0ff;background:linear-gradient(145deg,#031226f6,#071025f5);border-radius:20px;padding:9px 10px 10px;box-shadow:0 4px 10px #020c1c55}
 .word-panel h2{margin:0 0 7px;text-align:center;color:#9bff6d;text-shadow:0 0 9px #62ff54aa;font-size:clamp(18px,5.2vw,24px);line-height:1.15;letter-spacing:.065em;font-weight:950}
-.words{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 5px;min-height:100px;align-content:space-around}
-.word{display:flex;align-items:center;justify-content:center;min-width:0;white-space:nowrap;color:#fff;font-size:clamp(15px,4.35vw,20px);line-height:1.24;font-weight:900;letter-spacing:.012em;text-shadow:0 2px 2px #001224}
+.words{display:flex;flex-direction:column;gap:7px;min-height:92px;justify-content:center;--word-size:19px}
+.word{display:flex;align-items:center;justify-content:center;min-width:0;min-height:26px;white-space:nowrap;color:#fff;font-size:var(--word-size);line-height:1.25;font-weight:900;letter-spacing:-.012em;text-shadow:0 2px 2px #001224}
 .word.found{color:#ff74bf;text-decoration:line-through;text-decoration-thickness:3px;text-shadow:0 0 8px #ff68bcaa}
 .board-wrap{margin:0 auto;width:100%;flex:0 0 auto;position:relative;}
 .board{width:100%;position:relative;aspect-ratio:1/1;touch-action:none;-webkit-user-select:none;user-select:none;}
@@ -77,15 +77,24 @@ body::after{content:"";pointer-events:none;position:fixed;inset:0;z-index:-1;opa
 .variant-c .cell.found .glyph{color:#132439}
 .variant-c .word-panel{border-color:#9cf6ff}
 .variant-c .path-layer line{opacity:.80;filter:none}
-@media (min-width:550px) {.app{padding-left:14px;padding-right:14px}.board-wrap{max-width:510px}.words{min-height:110px}.glyph{font-size:30px}}
-@media (max-width:350px){.app{gap:6px;padding-left:5px;padding-right:5px}.toolbar{gap:5px}.roundbtn{width:43px;height:43px}.statusbadge{min-height:43px;padding:0 9px}.coins{min-width:61px}.stats{min-height:65px}.word-panel{padding:8px 6px}.word-panel h2{margin-bottom:5px}.words{gap:6px 2px;min-height:89px}.word{font-size:15px}.board{border-radius:15px}.variant-a .board{border-width:5px;padding:3px}.controls button{font-size:12px;min-height:45px}}
-@media (max-height:710px){.app{gap:6px}.compare-header{font-size:11px}.word-panel{padding-top:7px;padding-bottom:8px}.words{min-height:94px;gap:5px 3px}.controls{margin-top:4px}}
+@media (min-width:550px) {.app{padding-left:14px;padding-right:14px}.board-wrap{max-width:510px}.words{min-height:100px}.glyph{font-size:30px}}
+@media (max-width:350px){.app{gap:6px;padding-left:5px;padding-right:5px}.toolbar{gap:5px}.roundbtn{width:43px;height:43px}.statusbadge{min-height:43px;padding:0 9px}.coins{min-width:61px}.stats{min-height:65px}.word-panel{padding:8px 6px}.word-panel h2{margin-bottom:5px}.words{gap:5px;min-height:88px}.word{min-height:24px}.board{border-radius:15px}.variant-a .board{border-width:5px;padding:3px}.controls button{font-size:12px;min-height:45px}}
+@media (max-height:710px){.app{gap:6px}.compare-header{font-size:11px}.word-panel{padding-top:7px;padding-bottom:8px}.words{min-height:88px;gap:5px}.controls{margin-top:4px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
+/* Design B v2: centered three-row word distribution with a near-invisible grid perimeter. */
+.word-row{display:grid;grid-template-columns:repeat(var(--cols,3),minmax(0,1fr));align-items:center;gap:clamp(6px,2vw,10px);width:100%;min-height:26px}
+.variant-b .word-panel{padding-left:7px;padding-right:7px}
+.variant-b .board::after{content:"";pointer-events:none;position:absolute;inset:0;z-index:4;border:1px solid rgba(186,239,255,.22);border-radius:14px;box-shadow:0 0 3px rgba(65,211,255,.05)}
+.case-picker{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
+.case-picker[hidden]{display:none!important}
+.case-picker button{font-size:15px;line-height:1.25;font-weight:850;padding:9px 10px;border-radius:12px;color:#081a30;background:linear-gradient(#a7f8ff,#57c1e9);border:1px solid #d6ffff}
+@media(max-width:350px){.variant-b .word-panel{padding-left:6px;padding-right:6px}.word-row{gap:6px}.word{min-height:24px}}
 </style>
 </head>
 <body class="variant-b">
 <main class="app" aria-label="Shift It iPhone board layout comparison B">
-<div class="compare-header">DESIGN B · OPEN BUBBLES · NO SAVED PROGRESS</div>
+<div class="compare-header">B · OPEN BUBBLES · THREE-ROW WORDS</div>
 <header class="toolbar">
 <button class="roundbtn" id="pause" aria-label="Pause preview">PAUSE</button>
 <button class="roundbtn gear" id="settings" aria-label="About this layout preview">⚙️</button>
@@ -104,7 +113,7 @@ body::after{content:"";pointer-events:none;position:fixed;inset:0;z-index:-1;opa
 <nav class="controls" aria-label="Puzzle controls"><button id="hint">💡 HINT</button><button id="freeze">❄️ FREEZE</button><button id="themes">🎨 THEMES</button></nav>
 <div class="board-note" id="boardNote" role="status" aria-live="polite">Drag across letters to try the board. Nothing is saved.</div>
 </main>
-<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="overlayTitle"><div class="overlay-box"><h3 id="overlayTitle">PREVIEW</h3><p id="overlayText">This is a standalone comparison.</p><button id="closeOverlay">CONTINUE</button></div></div>
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="overlayTitle"><div class="overlay-box"><h3 id="overlayTitle">PREVIEW</h3><p id="overlayText">This is a standalone comparison.</p><div id="casePicker" class="case-picker" hidden><button type="button" data-testcase="0">ORIGINAL 7 WORDS</button><button type="button" data-testcase="1">LONG MASTER · 7 WORDS</button><button type="button" data-testcase="2">WIDEST MASTER · 8 WORDS</button></div><button id="closeOverlay">CONTINUE</button></div></div>
 <script>
 (() => {
   'use strict';
@@ -134,10 +143,53 @@ body::after{content:"";pointer-events:none;position:fixed;inset:0;z-index:-1;opa
     return Array.from({length:steps+1},(_,i)=>[a[0]+sr*i,a[1]+sc*i]);
   }
   const wordBox=document.querySelector('#wordList');
-  for (const word of words){
-    const div=document.createElement('div');div.className='word'+(found.has(word)?' found':'');
-    div.dataset.word=word;div.textContent=word;wordBox.append(div);
+  // All stress-test words are existing legal Master candidates (maximum 8 letters),
+  // but alternate lists deliberately do not change the board's actual targets.
+  const testWordSets=[
+    words.slice(),
+    ['COMPASS','FRONTIER','AMETHYST','SAPPHIRE','SPECTRUM','PENDULUM','ARGUMENT'],
+    ['ARGUMENT','PENDULUM','LUMINOUS','NITROGEN','AMETHYST','SPECTRUM','COHERENT','GLOSSARY']
+  ];
+  let displayWords=testWordSets[0].slice();
+  const previewCanvas=document.createElement('canvas');
+  const previewCtx=previewCanvas.getContext('2d');
+  function approximateWidth(word){
+    previewCtx.font='900 18px system-ui';
+    return previewCtx.measureText(word).width;
   }
+  function buildWordRows(){
+    const ordered=displayWords.slice().sort((a,b)=>a.length-b.length||approximateWidth(a)-approximateWidth(b)||a.localeCompare(b));
+    const sizes=ordered.length===8?[3,3,2]:ordered.length===7?[3,2,2]:[Math.min(3,ordered.length),Math.min(3,Math.max(0,ordered.length-3)),Math.max(0,ordered.length-6)];
+    wordBox.replaceChildren();let offset=0;
+    for(const count of sizes){
+      if(!count)continue;
+      const row=document.createElement('div');row.className='word-row';row.style.setProperty('--cols',String(count));
+      for(const word of ordered.slice(offset,offset+count)){
+        const div=document.createElement('div');div.className='word'+(found.has(word)?' found':'');
+        div.dataset.word=word;div.textContent=word;row.append(div);
+      }
+      offset+=count;wordBox.append(row);
+    }
+    fitWordRows();
+  }
+  function fitWordRows(){
+    // Keep all words intact, never ellipsize, and use the largest shared readable font
+    // that fits the actual rendered row widths at this viewport.
+    const maxSize=Math.min(20.5,Math.max(17.5,innerWidth*.049));
+    let size=maxSize;
+    const wordNodes=[...wordBox.querySelectorAll('.word')];
+    const fits=()=>wordNodes.every(el=>{
+      const range=document.createRange();range.selectNodeContents(el);
+      return range.getBoundingClientRect().width+5<=el.clientWidth;
+    });
+    for(;size>=15.5;size-=.25){
+      wordBox.style.setProperty('--word-size',size.toFixed(2)+'px');
+      if(fits())break;
+    }
+    if(size<15.5)wordBox.style.setProperty('--word-size','15.5px');
+    wordBox.dataset.rows=String(wordBox.children.length);
+  }
+  buildWordRows();
   const layer=document.createElementNS('http://www.w3.org/2000/svg','svg');
   layer.setAttribute('class','path-layer');layer.setAttribute('aria-hidden','true');
   container.append(layer);
@@ -181,7 +233,7 @@ body::after{content:"";pointer-events:none;position:fixed;inset:0;z-index:-1;opa
     }
     const path=lineBetween(start,current);
     if(path){for(const point of path)tileAt(point).classList.add('active');addStroke(path,'#f9eb75',true);}
-    for(const el of wordBox.children)el.classList.toggle('found',found.has(el.dataset.word));
+    for(const el of wordBox.querySelectorAll('.word'))el.classList.toggle('found',found.has(el.dataset.word));
     foundElement.textContent=`${found.size} / ${words.length} · ${Math.round(100*found.size/words.length)}%`;
   }
   function hit(e){
@@ -223,10 +275,19 @@ body::after{content:"";pointer-events:none;position:fixed;inset:0;z-index:-1;opa
     }
     start=null;current=null;render();
   }
-  function show(t,m){overlayTitle.textContent=t;overlayText.textContent=m;overlay.classList.add('open')}
+  function show(t,m){overlayTitle.textContent=t;overlayText.textContent=m;document.querySelector('#casePicker').hidden=true;overlay.classList.add('open')}
   document.querySelector('#closeOverlay').addEventListener('click',()=>overlay.classList.remove('open'));
   document.querySelector('#pause').addEventListener('click',()=>show('PAUSED','This is an independent board-layout preview. Tap CONTINUE to return to the same letters.'));
-  document.querySelector('#settings').addEventListener('click',()=>show('LAYOUT PREVIEW','Compare design A, B, and C using the separate HTML files. This prototype does not change your actual game.'));
+  document.querySelector('#settings').addEventListener('click',()=>{
+    show('MASTER WORD-LIST FIT','Switch word-list samples to assess the longest real Master vocabulary. The letter board remains the original example; nothing is saved.');
+    document.querySelector('#casePicker').hidden=false;
+  });
+  document.querySelector('#casePicker').addEventListener('click',e=>{
+    const btn=e.target.closest('[data-testcase]');if(!btn)return;
+    const index=Number(btn.dataset.testcase);if(!testWordSets[index])return;
+    displayWords=testWordSets[index].slice();buildWordRows();render();overlay.classList.remove('open');
+    note.textContent=index===0?'Original seven-word Master puzzle. No progress saved.':`Word-list fit test: ${displayWords.length} real Master words. Puzzle letters unchanged.`;
+  });
   document.querySelector('#coins').addEventListener('click',()=>show('PREVIEW ONLY','Coins, purchases, and progress are not active in these three standalone layout comparisons.'));
   document.querySelector('#hint').addEventListener('click',()=>{
     const next=words.find(w=>!found.has(w));if(!next){announce('All words found!');return}
@@ -237,10 +298,13 @@ body::after{content:"";pointer-events:none;position:fixed;inset:0;z-index:-1;opa
     themeIdx=(themeIdx+1)%3;
     const palettes=[['#1477a1','#176b86','#162f57'],['#4f4eab','#126e9d','#0a4351'],['#0c8c91','#25619d','#283c85']];
     const p=palettes[themeIdx];
-    document.body.style.background=`linear-gradient(155deg,${p[0]} 0%,${p[1]} 48%,${p[2]} 100%)`;
+    document.body.style.setProperty('--scene-a',p[0]);
+    document.body.style.setProperty('--scene-b',p[1]);
+    document.body.style.setProperty('--scene-c',p[2]);
     announce(['OCEAN','AURORA','LAGOON'][themeIdx]+' preview');
   });
-  window.addEventListener('resize',render);
+  window.addEventListener('resize',()=>{fitWordRows();render()});
+  document.fonts?.ready?.then(()=>fitWordRows());
   render();
 })();
 </script>
