@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#123b62">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Shift It — Design B v2: Three-Row Word List</title>
+<title>Shift It — Design B v4: Master Compact Controls</title>
 <style>
 :root {color-scheme: dark; --ink:#f7fdff; --soft:#add6eb; --cyan:#39edff; --gold:#ffe783; --touch-font:clamp(14px,3.7vw,17px);}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -82,19 +82,30 @@ body::after{content:"";pointer-events:none;position:fixed;inset:0;z-index:-1;opa
 @media (max-height:710px){.app{gap:6px}.compare-header{font-size:11px}.word-panel{padding-top:7px;padding-bottom:8px}.words{min-height:88px;gap:5px}.controls{margin-top:4px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 
-/* Design B v2: centered three-row word distribution with a near-invisible grid perimeter. */
+/* Design B v3: centered three-row word distribution with a near-invisible grid perimeter. */
 .word-row{display:grid;grid-template-columns:repeat(var(--cols,3),minmax(0,1fr));align-items:center;gap:clamp(6px,2vw,10px);width:100%;min-height:26px}
 .variant-b .word-panel{padding-left:7px;padding-right:7px}
-.variant-b .board::after{content:"";pointer-events:none;position:absolute;inset:0;z-index:4;border:1px solid rgba(186,239,255,.22);border-radius:14px;box-shadow:0 0 3px rgba(65,211,255,.05)}
+.variant-b .board::after{content:"";pointer-events:none;position:absolute;inset:0;z-index:4;border:1px solid #3ee0ff;border-radius:14px;box-shadow:0 0 3px rgba(65,211,255,.05)}
 .case-picker{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
 .case-picker[hidden]{display:none!important}
 .case-picker button{font-size:15px;line-height:1.25;font-weight:850;padding:9px 10px;border-radius:12px;color:#081a30;background:linear-gradient(#a7f8ff,#57c1e9);border:1px solid #d6ffff}
 @media(max-width:350px){.variant-b .word-panel{padding-left:6px;padding-right:6px}.word-row{gap:6px}.word{min-height:24px}}
+/* Master ONLY: slim visual option pills; unchanged navy-blue gradient and cyan border color.
+   A transparent 5px upper/lower pseudo-element helps retain a roughly 44px touch target.
+   Do not apply this scope to Zen, Classic, or Extreme when integrating. */
+body.master-preview .controls button{
+  position:relative;min-height:34px;height:34px;padding:1px 3px;
+  border:1px solid #8be8ff;border-radius:11px;
+  line-height:1.12;box-shadow:inset 0 1px 5px #fff3,0 2px 4px #0003;
+}
+body.master-preview .controls button::before{
+  content:"";position:absolute;inset:-5px 0;pointer-events:auto;
+}
 </style>
 </head>
-<body class="variant-b">
+<body class="variant-b master-preview">
 <main class="app" aria-label="Shift It iPhone board layout comparison B">
-<div class="compare-header">B · OPEN BUBBLES · THREE-ROW WORDS</div>
+<div class="compare-header">B v4 · MASTER COMPACT CONTROLS</div>
 <header class="toolbar">
 <button class="roundbtn" id="pause" aria-label="Pause preview">PAUSE</button>
 <button class="roundbtn gear" id="settings" aria-label="About this layout preview">⚙️</button>
