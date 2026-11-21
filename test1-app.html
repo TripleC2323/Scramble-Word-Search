@@ -2603,6 +2603,54 @@
     min-height:47px!important;
   }
 }
+
+/* v12.49.88.5: passive completion messages must NEVER change the Home layout,
+   cover the PLAY button, or capture pointer/touch events. Keep original colors. */
+#modal.stage-window.shift-home-v874.is-home-modal .shift-home-awards {pointer-events:none!important;}
+#modal.stage-window.shift-home-v874.is-home-modal .shift-home-awards .shift-brief-award {
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:min(100%,620px)!important;max-width:100%!important;min-height:0!important;
+ padding:clamp(5px,.9dvh,9px) clamp(8px,2vw,16px)!important;
+ margin:0!important;border:2px solid #fff3b1!important;border-radius:clamp(13px,3vw,24px)!important;
+ background:linear-gradient(145deg,#fff2ad,#e9a928 48%,#a8600b)!important;
+ color:#2b1900!important;font-weight:950!important;font-size:clamp(13px,3.6vw,22px)!important;
+ text-align:center!important;line-height:1.2!important;
+ text-shadow:0 1px 0 #fff9!important;box-shadow:0 0 18px #ffca48c2!important;
+ pointer-events:none!important;max-height:none!important;position:relative!important;
+}
+#modal.stage-window.shift-home-v874.is-home-modal .shift-home-awards .shift-milestone-award {
+ background:linear-gradient(145deg,#ffe77d,#f0ac30 48%,#b65e10)!important;
+ border-color:#fff6b0!important;
+}
+#modal.stage-window.shift-home-v874.is-home-modal.shift-award-visible .stage-home-artwork {
+ max-height:min(18dvh,140px)!important;
+}
+@media (max-height:700px){
+ #modal.stage-window.shift-home-v874.is-home-modal .shift-home-awards .shift-brief-award {padding:4px 7px!important;font-size:clamp(12px,3.2vw,16px)!important;}
+ #modal.stage-window.shift-home-v874.is-home-modal.shift-award-visible .stage-home-artwork {max-height:12dvh!important;}
+}
+@media (max-height:600px) and (max-width:355px){
+ #modal.stage-window.shift-home-v874.is-home-modal.shift-award-visible .stage-home-artwork {max-height:10dvh!important;}
+}
+
+
+/* v12.49.88.6: award is a real continuation control, never a blocking cover. */
+#modal.stage-window.shift-home-v874.is-home-modal.shift-award-visible {
+  overflow-y:auto!important;overscroll-behavior:contain!important;
+}
+#modal.stage-window.shift-home-v874.is-home-modal .shift-home-awards .shift-brief-award.shift-award-continue {
+  pointer-events:auto!important;cursor:pointer!important;touch-action:manipulation!important;
+  position:relative!important;z-index:4!important;min-height:48px!important;
+}
+#modal.stage-window.shift-home-v874.is-home-modal .shift-home-awards .shift-brief-award.shift-award-continue::after {
+  content:" ▶";white-space:nowrap!important;margin-left:.4em!important;
+}
+#modal.stage-window.shift-home-v874.is-home-modal .shift-home-awards .shift-brief-award.shift-award-continue:focus-visible {
+  outline:3px solid #fff!important;outline-offset:3px!important;
+}
+#modal.stage-window.shift-home-v874.is-home-modal .stage-home-bottom .stage-home-level {
+  pointer-events:auto!important;position:relative!important;z-index:5!important;
+}
 </style>
 <link href="icon-180.png" rel="apple-touch-icon" sizes="180x180"/><link href="icon-192.png" rel="icon" type="image/png"/><link href="manifest.webmanifest" rel="manifest"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="Shift It" name="apple-mobile-web-app-title"/><meta content="#07142c" name="theme-color"/>
 
@@ -2981,6 +3029,7 @@ function observeGameAudioContext(context){
   if(context.state==='running')queueMicrotask(()=>recoverLivePuzzleAudio(context));
  });
 }
+const primedAudioContexts=new WeakSet();
 function unlockGameAudio(event){
  // Unlock even when ALL SOUND is off so turning it back on works on the same tap.
  try{
@@ -2990,7 +3039,17 @@ function unlockGameAudio(event){
    audioCtx=new Ctx();pendingAudioResume=null;
   }
   observeGameAudioContext(audioCtx);
-  const fromGesture=!!event&&['pointerdown','touchstart','keydown'].includes(event.type);
+  const fromGesture=!!event&&['pointerdown','touchstart','touchend','keydown','click'].includes(event.type);
+  // Some WebKit builds need a source started inside the first gesture, not only
+  // AudioContext.resume(). The one-sample buffer is completely silent.
+  if(fromGesture&&!primedAudioContexts.has(audioCtx)){
+    try{
+      const prime=audioCtx.createBufferSource();
+      prime.buffer=audioCtx.createBuffer(1,1,audioCtx.sampleRate);
+      prime.connect(audioCtx.destination);prime.start(0);
+      primedAudioContexts.add(audioCtx);
+    }catch(_){/* Continue: regular resume can still work. */}
+  }
   // A new real gesture may retry Safari's interrupted or long-pending resume.
   if(audioCtx.state!=='running'&&(!pendingAudioResume||fromGesture)){
    const context=audioCtx;
@@ -3006,6 +3065,8 @@ function unlockGameAudio(event){
 }
 document.addEventListener('pointerdown',unlockGameAudio,{capture:true,passive:true});
 document.addEventListener('touchstart',unlockGameAudio,{capture:true,passive:true});
+document.addEventListener('touchend',unlockGameAudio,{capture:true,passive:true});
+document.addEventListener('click',unlockGameAudio,{capture:true});
 document.addEventListener('keydown',unlockGameAudio,{capture:true});
 function playTone(freq,type='sine',duration=.08,vol=.10){if(state.audioPrefs?.all===false)return;try{const readyCtx=unlockGameAudio();if(!readyCtx)return;if(readyCtx.state!=='running')return;/* Blocked sounds expire immediately; no late replay. */const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.setValueAtTime(freq,audioCtx.currentTime);g.gain.setValueAtTime(vol,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+duration)}catch(e){}}let audioScreenEpoch=0;
 function cancelDelayedScreenSfx(){audioScreenEpoch++;stopStreakCue()}
@@ -3055,8 +3116,28 @@ function playStreakVictoryCue(){
 }
 
 function wordChime(i){
+  if(state.audioPrefs?.all===false||document.hidden)return;
   const notes=[[523.25,659.25],[587.33,739.99],[659.25,830.61],[783.99,987.77],[880,1108.73],[1046.5,1318.51],[1174.66,1479.98],[1318.51,1661.22]];
   const [a,b]=notes[Math.min(i,7)], epoch=audioScreenEpoch, originGame=game;
+  const ctx=unlockGameAudio();
+  if(!ctx)return;
+  if(ctx.state!=='running'){
+    const heardAt=performance.now();
+    const foundCount=game?.found?.length;
+    const attempt=pendingAudioResume;
+    if(attempt)Promise.resolve(attempt).then(()=>{
+      if(performance.now()-heardAt>350||ctx.state!=='running'||
+         game!==originGame||game?.found?.length!==foundCount||
+         epoch!==audioScreenEpoch||document.hidden||state.audioPrefs?.all===false)return;
+      playTone(a,'sine',.28,.12);
+      setTimeout(()=>{
+        if(epoch===audioScreenEpoch&&originGame===game&&
+           game?.found?.length===foundCount&&!document.hidden&&state.audioPrefs?.all!==false)
+          playTone(b,'sine',.32,.10);
+      },50);
+    }).catch(()=>{});
+    return;
+  }
   playTone(a,'sine',.28,.12);
   setTimeout(()=>{
     if(epoch!==audioScreenEpoch||originGame!==game||document.hidden||state.audioPrefs?.all===false)return;
@@ -3576,7 +3657,7 @@ function win(delayCelebration=false){if(!game||game.completed)return;victoryMusi
    const completedPuzzle=game;
    setTimeout(()=>{
     // A new game, manual navigation, or a different overlay cancels this transition.
-    if(game!==completedPuzzle||!completedPuzzle.completed||!$('overlay').classList.contains('hidden'))return;
+    if(game!==completedPuzzle||!completedPuzzle.completed)return;
     game=null;
     openHome(celebration,achievement,streakAchievement);
    },1500);
@@ -3923,7 +4004,7 @@ function installCompatibilityLayoutObserver(){
 installCompatibilityLayoutObserver();
 function clearModalRouteClasses(m){
  m.classList.remove('is-home-modal','has-congrats','has-difficulty-cards','has-menu',
-  'shift-home-v874','home-first-play','welcome-arrival','shift-milestone-pending',
+  'shift-home-v874','home-first-play','welcome-arrival','shift-milestone-pending','shift-award-visible',
   'difficulty-refined','personal-bests-modal','stage-window','stage-shop-compact',
   'stage-settings-premium','theme-gallery-window','shift-three-step-themes',
   'shift-quit-window','pause-hub','timeout-panel','tutorial-centered','guided-tour-modal');
@@ -3968,11 +4049,12 @@ function openHome(congratulations=null,achievement=null,streakAchievement=null){
  $('splash').classList.add('hidden');if(game?.completed)game=null;if(game)persist();drag=null;tapStart=null;lastHover=null;selectPath(null);
  const m=stageModal('',!!congratulations&&victoryMusicCarry);
  m.classList.add('shift-home-v874','is-home-modal');m.dataset.shiftHomeLayout='v874';
+ if(congratulations)m.classList.add('shift-award-visible');
   const firstPlayHome=!hasEstablishedPuzzlePlay()&&!congratulations;
   if(firstPlayHome)m.classList.add('home-first-play');
   if(arrivingFromSplash)m.classList.add('welcome-arrival');
  let congrats=null;if(congratulations){
-  congrats=document.createElement('div');congrats.className='stage-congrats victory-showcase';
+  congrats=document.createElement('div');congrats.className='shift-brief-award';
   congrats.textContent=congratulations;congrats.setAttribute('role','status');congrats.setAttribute('aria-live','polite');
   // Complete the level celebration first. A milestone is a second, independent moment.
   playDistinctLevelClear();
@@ -3993,8 +4075,8 @@ function openHome(congratulations=null,achievement=null,streakAchievement=null){
    // A first-time player sees the existing two-step SHIFT tour once, after
    // deliberately pressing PLAY. SKIP remains available; all other sessions
    // resume normally. Never run a timer behind the tutorial.
-   const offerFirstTour=false; // DIAGNOSTIC A/B ONLY: first-play tutorial skipped; HOW TO PLAY remains available.
-   if(liveCampaign&&game&&!game.dailyDate&&game.mode===mode&&!game.expired&&!game.completed)returnToPuzzle();
+   const offerFirstTour=firstPlayHome&&!state.seenTutorialV1240&&!state.seenTutorial;
+   if(liveCampaign&&game&&!game.dailyDate&&game.mode===mode&&!game.expired&&!game.completed){returnToPuzzle();return;}
    // An unfinished Daily puzzle must never hijack campaign LEVEL PLAY.
    // Its snapshot was preserved by openHome; restore the separate campaign board.
    if(!restore(mode))start(mode);
@@ -4018,19 +4100,55 @@ function openHome(congratulations=null,achievement=null,streakAchievement=null){
  // buttons share a responsive two-column row and never depend on JS measurements.
  if(window._sizeHomeHowToPlay){window.removeEventListener('resize',window._sizeHomeHowToPlay);window._sizeHomeHowToPlay=null;}
  const bottom=document.createElement('div');bottom.className='stage-home-bottom';bottom.append(modeEl,resume);m.append(bottom);
+ // A completed campaign level must never strand a player behind its award.
+ // The award itself is a second, independent CONTINUE control. It uses the
+ // saved campaign's authoritative next-level counter, not the old puzzle DOM.
+ const clearedLevelMatch=typeof congratulations==='string' &&
+   congratulations.match(/LEVEL\s+(\d+)\s+CLEARED/i);
+ if(congrats&&clearedLevelMatch&&m.classList.contains('is-home-modal')){
+   const completedLevel=Number(clearedLevelMatch[1]);
+   const continueMode=mode;
+   const continueAfterClear=()=>{
+     if(!m.isConnected||!m.classList.contains('is-home-modal'))return;
+     clearMilestonePresentationTimers();
+     const pendingAward=state.pendingVictoryMilestone;
+     if(pendingAward&&pendingAward.mode===continueMode&&pendingAward.level===completedLevel){
+       state.pendingVictoryMilestone=null;save();
+     }
+     // One action starts one puzzle, even if a touch generates a second click.
+     congrats.onclick=null;congrats.onkeydown=null;
+     if(game?.completed)game=null;
+     const next=Math.max(completedLevel+1,
+       safeNonnegative(state.progress?.[continueMode])+1,
+       safeNonnegative(state.nextLevel?.[continueMode],1));
+     start(continueMode,next);
+   };
+   congrats.classList.add('shift-award-continue');
+   congrats.title='Tap to continue to the next level';
+   congrats.tabIndex=0;
+   congrats.setAttribute('role','button');
+   congrats.setAttribute('aria-label',`Level ${completedLevel} cleared. Continue to level ${completedLevel+1}`);
+   congrats.onclick=continueAfterClear;
+   congrats.onkeydown=e=>{
+     if(e.key==='Enter'||e.key===' '){e.preventDefault();continueAfterClear()}
+   };
+ }
  if(congrats && (achievement||streakAchievement)){
-   // Only milestones briefly hold Home navigation. Do not let a fast NEXT tap
-   // interrupt the ordinary finish cue and suppress the fifth-win award.
-   // Let the first NEXT LEVEL tap count. We queue it until both award cues
-   // finish instead of disabling the button and silently ignoring the tap.
+   // Do not lock Home navigation for an award. A player must always be able
+   // to start the next puzzle on the first tap, even on a slow/mobile browser.
+   // The milestone announcement uses passive content and never changes the
+   // Home layout to the special (clipping-prone) "has-congrats" grid.
    const resumeAction=resume.onclick;
-   let queuedNext=false;
-   m.classList.add('shift-milestone-pending');
    resume.onclick=()=>{
-     if(queuedNext)return;
-     queuedNext=true;
-     resume.textContent='✓ NEXT LEVEL QUEUED';
-     resume.setAttribute('aria-label','Next level queued; starting after celebration');
+     // A voluntary Continue may shorten the award cue; never replay a stale
+     // milestone indefinitely on the next Home visit.
+     clearMilestonePresentationTimers();
+     if(state.pendingVictoryMilestone &&
+        state.pendingVictoryMilestone.mode===(pending?.mode||mode) &&
+        state.pendingVictoryMilestone.level===(pending?.level||state.progress?.[mode])){
+       state.pendingVictoryMilestone=null;save();
+     }
+     resumeAction();
    };
    const sameHome=()=>m.isConnected&&congrats.isConnected&&
      m.classList.contains('stage-window')&&
@@ -4038,33 +4156,27 @@ function openHome(congratulations=null,achievement=null,streakAchievement=null){
      m.querySelector('.stage-home-bottom')!==null;
    milestoneRevealTimer=setTimeout(()=>{
      milestoneRevealTimer=null;
-     if(!sameHome())return; // Keep saved pending event for next visit.
+     if(!sameHome())return;
      const milestone=document.createElement('div');
-     milestone.className='stage-congrats victory-showcase victory-milestone stage-milestone-separate';
+     milestone.className='shift-brief-award shift-milestone-award';
      milestone.textContent=streakAchievement?
        '🔥 '+streakAchievement+'-PUZZLE STREAK! AMAZING WORK!':
        '🏆 MILESTONE ACHIEVED! '+achievementName(achievement);
-     milestone.setAttribute('role','status');milestone.setAttribute('aria-live','assertive');
+     milestone.setAttribute('role','status');milestone.setAttribute('aria-live','polite');
      congrats.insertAdjacentElement('afterend',milestone);
      if(streakAchievement)playApprovedStreak();
-     // Let the reward be seen/heard for a short moment before allowing NEXT.
      milestoneReleaseTimer=setTimeout(()=>{
        milestoneReleaseTimer=null;
        if(!sameHome())return;
-       m.classList.remove('shift-milestone-pending');
        if(state.pendingVictoryMilestone &&
-          state.pendingVictoryMilestone.mode===(pending?.mode||state.mode) &&
-          state.pendingVictoryMilestone.level===(pending?.level||state.progress?.[state.mode])){
+          state.pendingVictoryMilestone.mode===(pending?.mode||mode) &&
+          state.pendingVictoryMilestone.level===(pending?.level||state.progress?.[mode])){
          state.pendingVictoryMilestone=null;save();
        }
-       resume.onclick=resumeAction;
-       if(queuedNext){
-         // Ignore stale queued taps if Home was replaced while the cue played.
-         requestAnimationFrame(()=>{if(sameHome())resumeAction()});
-       }
-     },1850); // Keep the full approved streak WAV audible before navigation.
-   },2160); // Ordinary level-clear sound ends just before this cue.
+     },1850);
+   },2160);
  }
+
  // Run the one-per-day opening as Home becomes visible, not on the splash.
   // Do not mix the welcome cue with a level-completion celebration.
   if(!congratulations){
