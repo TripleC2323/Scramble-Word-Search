@@ -10628,7 +10628,7 @@ window.addEventListener('resize',()=>requestAnimationFrame(fitDifficultyToVisibl
 window.visualViewport?.addEventListener('resize',()=>requestAnimationFrame(fitDifficultyToVisibleViewport));
 
 let phoneLandscape=false;
-function checkPhoneOrientation(){const wasLandscape=phoneLandscape;const isLandscape=window.innerWidth>window.innerHeight;const shortSide=Math.min(window.innerWidth,window.innerHeight);const touchDevice=window.matchMedia('(pointer:coarse)').matches;phoneLandscape=Boolean(isLandscape&&touchDevice&&shortSide<=480&&window.innerWidth<=1000);if(phoneLandscape&&!wasLandscape){drag=null;tapStart=null;lastHover=null;selectPath(null)}document.body.classList.toggle('phone-landscape',phoneLandscape);if(phoneLandscape&&game)persist();}
+function checkPhoneOrientation(){const wasLandscape=phoneLandscape;const isLandscape=window.innerWidth>window.innerHeight;const shortSide=Math.min(window.innerWidth,window.innerHeight);const touchDevice=window.matchMedia('(pointer:coarse)').matches;phoneLandscape=Boolean(isLandscape&&touchDevice&&shortSide<=480&&window.innerWidth<=1000&&!(/(iPad|Tablet|Android(?!.*Mobile))/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)));if(phoneLandscape&&!wasLandscape){drag=null;tapStart=null;lastHover=null;selectPath(null)}document.body.classList.toggle('phone-landscape',phoneLandscape);if(phoneLandscape&&game)persist();}
 window.addEventListener('resize',checkPhoneOrientation);window.addEventListener('orientationchange',checkPhoneOrientation);checkPhoneOrientation();
 function findSavedMode(){const preferred=state.currentMode||state.mode;const list=[preferred,...modes.filter(m=>m!==preferred)];return list.find(m=>isResumableSavedPuzzle(state.sessions?.[m],m))||null}
 
@@ -11476,6 +11476,233 @@ for(const id of ['board','words']){const el=$(id);el.addEventListener('contextme
   #app:not(.hidden) #focusControls,
   #app:not(.hidden) #compactTapTip,
   #app:not(.hidden) .personal-bests-access {display:none!important;}
+}
+</style>
+
+<style id="shift-tablet-universal-20261128">
+/* One tablet layout rule set driven by usable CSS viewport, including small tablets.
+   Portrait: list then readable timers then largest SQUARE board allowed by actual remaining space.
+   Landscape: desktop-like left list/stats and right board.
+   No board content, scoring, timing, vocabulary or save logic changed. */
+@media (min-width:480px) and (min-height:670px) and (orientation:portrait) {
+  #app:not(.hidden) {
+    box-sizing:border-box!important;display:grid!important;
+    width:100vw!important;max-width:none!important;
+    height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;
+    margin:0!important;padding:clamp(6px,1.1dvh,15px) clamp(8px,1.7vw,24px)!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:min-content min-content minmax(0,1fr) min-content!important;
+    row-gap:clamp(4px,.7dvh,9px)!important;column-gap:0!important;
+    align-items:stretch!important;align-content:stretch!important;justify-items:stretch!important;
+    overflow:hidden!important;
+  }
+  #app:not(.hidden) .top {
+    grid-column:1!important;grid-row:1!important;align-self:start!important;
+    width:100%!important;max-width:none!important;margin:0!important;
+  }
+  #app:not(.hidden) .classic-integrated-header {
+    box-sizing:border-box!important;grid-column:1!important;grid-row:2!important;
+    display:flex!important;flex-direction:column!important;
+    width:100%!important;min-width:0!important;max-width:none!important;
+    margin:0!important;padding:0!important;gap:5px!important;
+    transform:none!important;justify-self:stretch!important;align-self:start!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .words {
+    box-sizing:border-box!important;order:0!important;display:flex!important;
+    flex-direction:column!important;justify-content:center!important;
+    width:100%!important;min-width:0!important;max-width:none!important;
+    flex:0 0 auto!important;align-self:stretch!important;
+    height:auto!important;min-height:0!important;max-height:none!important;
+    margin:0!important;padding:clamp(4px,.55dvh,7px) clamp(6px,1vw,11px)!important;
+    gap:2px!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic {
+    box-sizing:border-box!important;order:1!important;display:flex!important;
+    flex-direction:column!important;justify-content:center!important;
+    width:100%!important;min-width:0!important;max-width:none!important;
+    flex:0 0 auto!important;align-self:stretch!important;
+    height:auto!important;min-height:0!important;max-height:none!important;
+    margin:0!important;padding:clamp(5px,.6dvh,9px)!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stats {
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    width:100%!important;gap:3px!important;align-items:stretch!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stats>span {
+    box-sizing:border-box!important;min-width:0!important;
+    min-height:clamp(60px,8dvh,76px)!important;
+    padding:4px 3px!important;display:flex!important;flex-direction:column!important;
+    align-items:center!important;justify-content:center!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stat-label {
+    font-size:clamp(15px,2vw,18px)!important;line-height:1.16!important;
+    font-weight:900!important;letter-spacing:.02em!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stat-value {
+    font-size:clamp(24px,3.2vw,32px)!important;line-height:1.2!important;font-weight:900!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stats #count .stat-value {
+    font-size:clamp(19px,2.6vw,26px)!important;
+  }
+  #app:not(.hidden) .classic-integrated-header #words .target-words-header {
+    font-size:clamp(17px,2.35vw,24px)!important;line-height:1.07!important;
+    margin:0 0 2px!important;
+  }
+  #app:not(.hidden) .classic-integrated-header #words .shift-three-rows {
+    gap:clamp(2px,.4dvh,5px)!important;margin:0!important;
+  }
+  #app:not(.hidden) .classic-integrated-header #words .shift-word-row {
+    gap:clamp(4px,.7vw,9px)!important;
+  }
+  #app:not(.hidden) .classic-integrated-header #words .shift-word-row .word,
+  #app:not(.hidden) .classic-integrated-header #words .shift-word-row .word.long {
+    font-size:clamp(14px,2.2vw,20px)!important;line-height:1.12!important;
+    min-width:0!important;padding:1px 2px!important;
+  }
+  #app:not(.hidden) .board-viewport {
+    box-sizing:border-box!important;grid-column:1!important;grid-row:3!important;
+    container-type:size!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+    max-width:none!important;max-height:none!important;
+    align-self:stretch!important;justify-self:stretch!important;
+    margin:0!important;padding:0!important;overflow:hidden!important;
+  }
+  #app:not(.hidden)[data-difficulty] .board-viewport #board {
+    box-sizing:border-box!important;flex:0 0 auto!important;
+    width:min(100cqw,100cqh)!important;height:min(100cqw,100cqh)!important;
+    aspect-ratio:1!important;min-width:0!important;min-height:0!important;
+    max-width:none!important;max-height:none!important;margin:auto!important;
+    transform:none!important;
+  }
+  #app:not(.hidden) .controls {
+    grid-column:1!important;grid-row:4!important;
+    width:min(100%,950px)!important;min-width:0!important;max-width:none!important;
+    justify-self:center!important;align-self:end!important;margin:0 auto!important;
+  }
+  #app:not(.hidden) .extreme-brand,#app:not(.hidden) #focusControls,
+  #app:not(.hidden) #compactTapTip,#app:not(.hidden) .personal-bests-access{display:none!important;}
+}
+/* On medium/large portrait tablets, put statistics next to the top word list,
+   freeing vertical room for a genuinely larger board while keeping timer numbers readable. */
+@media (min-width:700px) and (min-height:790px) and (orientation:portrait) {
+  #app:not(.hidden) .classic-integrated-header {
+    display:grid!important;grid-template-columns:minmax(286px,.43fr) minmax(0,.57fr)!important;
+    grid-template-rows:min-content!important;gap:clamp(8px,1.1vw,15px)!important;
+    align-items:stretch!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic {
+    grid-column:1!important;grid-row:1!important;order:0!important;
+    height:100%!important;min-width:0!important;align-self:stretch!important;
+    padding:clamp(5px,.7vw,9px)!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .words {
+    grid-column:2!important;grid-row:1!important;order:0!important;
+    height:100%!important;min-width:0!important;align-self:stretch!important;
+    padding:clamp(5px,.7vw,9px)!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stats>span {
+    min-height:80px!important;padding:4px 1px!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stat-label {
+    font-size:clamp(15px,1.75vw,19px)!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stat-value {
+    font-size:clamp(24px,3vw,34px)!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stats #count .stat-value {
+    font-size:clamp(19px,2.4vw,27px)!important;
+  }
+}
+/* Landscape tablet and compact CrazyGames frames: true desktop two-column gameplay. */
+@media (min-width:700px) and (max-width:1199px) and (min-height:420px) and (orientation:landscape) {
+  #app:not(.hidden) {
+    box-sizing:border-box!important;display:grid!important;
+    width:100vw!important;max-width:none!important;
+    height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;
+    margin:0!important;padding:clamp(6px,1dvh,12px) clamp(8px,1.2vw,16px)!important;
+    grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr)!important;
+    grid-template-rows:min-content minmax(0,1fr) min-content!important;
+    column-gap:clamp(8px,1.2vw,18px)!important;row-gap:clamp(4px,.7dvh,8px)!important;
+    align-items:stretch!important;align-content:stretch!important;justify-items:stretch!important;
+    overflow:hidden!important;
+  }
+  #app:not(.hidden) .top {
+    grid-column:1/-1!important;grid-row:1!important;
+    width:100%!important;max-width:none!important;margin:0!important;align-self:start!important;
+  }
+  #app:not(.hidden) .classic-integrated-header {
+    box-sizing:border-box!important;grid-column:1!important;grid-row:2!important;
+    display:flex!important;flex-direction:column!important;
+    width:100%!important;min-width:0!important;max-width:none!important;
+    align-self:center!important;justify-self:stretch!important;
+    margin:0!important;padding:0!important;transform:none!important;
+    gap:clamp(6px,1.1dvh,12px)!important;
+  }
+  #app:not(.hidden) .classic-integrated-header #words {
+    box-sizing:border-box!important;order:0!important;flex:0 0 auto!important;
+    width:100%!important;min-width:0!important;max-width:none!important;
+    margin:0!important;padding:clamp(6px,1dvh,10px)!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic {
+    box-sizing:border-box!important;order:1!important;flex:0 0 auto!important;
+    width:100%!important;min-width:0!important;max-width:none!important;
+    margin:0!important;padding:clamp(6px,1dvh,10px)!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stats {
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    width:100%!important;gap:2px!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stats>span {
+    box-sizing:border-box!important;min-width:0!important;
+    min-height:clamp(60px,11dvh,82px)!important;
+    padding:3px 1px!important;display:flex!important;flex-direction:column!important;
+    align-items:center!important;justify-content:center!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stat-label {
+    font-size:clamp(14px,1.6vw,17px)!important;line-height:1.2!important;font-weight:900!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stat-value {
+    font-size:clamp(23px,2.4vw,30px)!important;line-height:1.15!important;font-weight:900!important;
+  }
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stats #count .stat-value {
+    font-size:clamp(18px,1.95vw,25px)!important;
+  }
+  #app:not(.hidden) .classic-integrated-header #words .target-words-header {
+    font-size:clamp(18px,2.3vw,24px)!important;line-height:1.1!important;
+  }
+  #app:not(.hidden) .classic-integrated-header #words .shift-word-row .word,
+  #app:not(.hidden) .classic-integrated-header #words .shift-word-row .word.long {
+    font-size:clamp(14px,1.8vw,20px)!important;line-height:1.12!important;
+  }
+  #app:not(.hidden) .board-viewport {
+    box-sizing:border-box!important;grid-column:2!important;grid-row:2!important;
+    container-type:size!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+    max-width:none!important;max-height:none!important;
+    align-self:stretch!important;justify-self:stretch!important;
+    margin:0!important;padding:0!important;overflow:hidden!important;
+  }
+  #app:not(.hidden)[data-difficulty] .board-viewport #board {
+    box-sizing:border-box!important;flex:0 0 auto!important;
+    width:min(100cqw,100cqh)!important;height:min(100cqw,100cqh)!important;
+    min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
+    aspect-ratio:1!important;margin:auto!important;transform:none!important;
+  }
+  #app:not(.hidden) .controls {
+    grid-column:1/-1!important;grid-row:3!important;
+    width:min(100%,1000px)!important;max-width:none!important;
+    align-self:end!important;justify-self:center!important;margin:0 auto!important;
+  }
+  #app:not(.hidden) .extreme-brand,#app:not(.hidden) #focusControls,
+  #app:not(.hidden) #compactTapTip,#app:not(.hidden) .personal-bests-access{display:none!important;}
+}
+/* Keyboard/mobile browser bars should never make the controls inaccessible. */
+@media (min-width:480px) and (max-height:740px) and (orientation:portrait) {
+  #app:not(.hidden) .classic-integrated-header #words .target-words-header{font-size:17px!important;}
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stats>span{min-height:47px!important;}
+  #app:not(.hidden) .classic-integrated-header .stage-topic .stat-value{font-size:24px!important;}
 }
 </style>
 </body></html>
